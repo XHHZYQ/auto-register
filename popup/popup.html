@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>自动报名助手</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h2>自动报名助手</h2>
+    <div class="upload-section">
+      <input type="file" id="excelFile" accept=".xlsx,.xls" />
+      <p class="hint">请选择包含报名信息的 Excel 文件</p>
+    </div>
+    <div class="progress-section" style="display: none;">
+      <div class="progress-bar">
+        <div class="progress" id="progressBar"></div>
+      </div>
+      <p class="progress-text">处理进度：<span id="progressText">0/0</span></p>
+    </div>
+    <div class="controls">
+      <button id="startBtn" disabled>开始处理</button>
+      <button id="pauseBtn" style="display: none;">暂停</button>
+    </div>
+    <div class="status-section">
+      <p>成功：<span id="successCount">0</span></p>
+      <p>失败：<span id="failCount">0</span></p>
+    </div>
+  </div>
+  <script src="../libs/xlsx.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html> 

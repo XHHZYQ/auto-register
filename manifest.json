@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "自动报名助手",
+  "version": "1.0",
+  "description": "自动填写报名表单的 Chrome 扩展",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.cacpaper.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.cacpaper.com/*"],
+      "js": ["libs/xlsx.min.js", "content/content.js"]
+    }
+  ],
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+} 
