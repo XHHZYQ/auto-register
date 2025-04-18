@@ -1,13 +1,13 @@
 // 字段映射配置
 const FIELD_MAPPING = {
-  '姓名中文': 'input[placeholder="请输入您的中文姓名"]',
-  '性别': 'select[placeholder="请选择"]',
-  '民族': 'input[placeholder="请输入您的民族"]',
-  '学校全称': 'input[placeholder="请输入您的学校名称"]',
-  '年级': 'select[placeholder="请选择"]',
+  '姓名中文': 'input[placeholder="请输入中文姓名"]',
+  '性别': '.am-input-group:has(span:contains("性别")) select',
+  '民族': 'input[placeholder="请输入民族"]',
+  '学校全称': 'input[placeholder="请输入学校名称"]',
+  '年级': '.am-input-group:has(span:contains("年级")) select',
   '身份证号': 'input[placeholder="请输入身份证号"]',
-  '监护人邮箱': 'input[placeholder="请输入您的邮箱"]',
-  '监护人手机': 'input[placeholder="请输入您的手机号"]',
+  '监护人邮箱': 'input[placeholder="请输入邮箱"]',
+  '监护人手机': 'input[placeholder="请输入手机号"]',
   '一寸照片': 'input[type="file"]'
 };
 
@@ -54,10 +54,10 @@ async function handleFormFill(studentData, photoData) {
     await fillCompetitionInfo(studentData);
     
     // 5. 添加队员信息
-    await addTeamMember(studentData, photoData);
+    const success = await addTeamMember(studentData, photoData);
     
     // 6. 提交表单
-    return await submitForm();
+    return success;
   } catch (error) {
     console.error('Registration process error:', error);
     return false;
@@ -234,15 +234,32 @@ async function addTeamMember(studentData, photoData) {
   });
 }
 
+// 辅助函数：通过label文本查找对应的select元素
+function findSelectByLabel(container, labelText) {
+  const groups = container.querySelectorAll('.am-input-group');
+  for (const group of groups) {
+      const label = group.querySelector('.am-input-group-label');
+      if (label && label.textContent.includes(labelText)) {
+          return group.querySelector('select');
+      }
+  }
+  return null;
+}
+
 // 填写队员表单
 async function fillMemberForm(studentData, photoData) {
   for (const [field, value] of Object.entries(studentData)) {
     if (!FIELD_MAPPING[field]) continue;
     console.log('填写队员表单 0', field, value);
     
-    const selector = FIELD_MAPPING[field];
-    console.log('填写队员表单 1', selector);
-    const element = document.querySelector(selector);
+    let element;
+    if (field === '性别' || field === '年级') {
+      element = findSelectByLabel(document, field);
+    } else {
+      const selector = FIELD_MAPPING[field];
+      console.log('填写队员表单 1', selector);
+      element = document.querySelector(selector);
+    }
     console.log('填写队员表单 2', element);
     
     if (!element) {
@@ -253,7 +270,7 @@ async function fillMemberForm(studentData, photoData) {
     if (element.tagName === 'SELECT') {
       await handleSelect(element, value);
     } else if (element.type === 'file' && field === '一寸照片') {
-      await handlePhotoUpload(element, photoData[studentData['证件号码']]);
+      await handlePhotoUpload(element, photoData[studentData['一寸照片']]);
     } else {
       element.value = field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
@@ -284,12 +301,13 @@ async function handlePhotoUpload(element, photoData) {
   try {
     const response = await fetch(photoData);
     const blob = await response.blob();
-    const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+    const file = new File([blob], 'filename.jpg', { type: 'image/jpg' });
     
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
+    console.log('处理照片上传 0', element.files, dataTransfer.files);
     element.files = dataTransfer.files;
-    
+    console.log('处理照片上传 1', element.files);
     element.dispatchEvent(new Event('change', { bubbles: true }));
   } catch (error) {
     console.error('Photo upload error:', error);

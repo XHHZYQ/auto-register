@@ -115,16 +115,19 @@ function processNext() {
   document.getElementById('currentStudent').textContent = student['姓名中文'];
   
   // 检查是否需要暂停（每处理5个学生）
-  if (processCount >= 5) {
+  // if (processCount >= 5) {
+  if (processCount >= 1) {
     isPaused = true;
     processCount = 0;
     document.getElementById('pauseBtn').textContent = '继续';
-    alert('已处理5名学生，请检查报名信息是否正确后继续。');
+    alert('已处理1名学生，请检查报名信息是否正确后继续。');
     return;
   }
 
   console.log('当前学生', student);
   console.log('photoFiles', photoFiles[student['一寸照片']]);
+  student['监护人邮箱'] = 'mingzhenghua@163.com';
+  student['监护人手机'] = '13896097261';
   // 发送消息给 content script
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
