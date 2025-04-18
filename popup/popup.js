@@ -1,8 +1,11 @@
 let studentData = [];
+let photoFiles = {};
 let isPaused = false;
 let currentIndex = 0;
+let processCount = 0;
 
 document.getElementById('excelFile').addEventListener('change', handleFileSelect);
+document.getElementById('photoFiles').addEventListener('change', handlePhotoSelect);
 document.getElementById('startBtn').addEventListener('click', startProcess);
 document.getElementById('pauseBtn').addEventListener('click', togglePause);
 
@@ -18,8 +21,12 @@ function handleFileSelect(event) {
       studentData = XLSX.utils.sheet_to_json(firstSheet);
       
       if (studentData.length > 0) {
-        document.getElementById('startBtn').disabled = false;
-        updateProgress(0, studentData.length);
+        // 验证Excel文件是否包含必要的列
+        if (!studentData[0].hasOwnProperty('一寸照片')) {
+          alert('Excel文件缺少"一寸照片"列，请检查文件格式！');
+          studentData = [];
+        }
+        checkStartCondition();
       }
     } catch (error) {
       alert('Excel 文件解析失败，请检查文件格式！');
@@ -30,9 +37,46 @@ function handleFileSelect(event) {
   reader.readAsArrayBuffer(file);
 }
 
+function handlePhotoSelect(event) {
+  const files = event.target.files;
+  photoFiles = {};
+  
+  // 创建照片文件名到文件内容的映射
+  for (let file of files) {
+    if (file.type.startsWith('image/')) {
+      const photoFileName = file.name; // 完整的文件名（包含扩展名）
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        photoFiles[photoFileName] = e.target.result;
+        checkStartCondition();
+      };
+      
+      reader.readAsDataURL(file);
+    }
+  }
+}
+
+function checkStartCondition() {
+  const hasStudentData = studentData.length > 0;
+  const hasPhotoFiles = Object.keys(photoFiles).length > 0;
+  
+  // 验证每个学生的照片是否都存在
+  const allPhotosExist = studentData.every(student => {
+    return student['一寸照片'] && photoFiles.hasOwnProperty(student['一寸照片']);
+  });
+  
+  if (hasStudentData && hasPhotoFiles && !allPhotosExist) {
+    alert('部分学生的照片文件缺失，请检查照片文件是否完整！');
+  }
+  
+  document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles && allPhotosExist);
+}
+
 function startProcess() {
   if (currentIndex >= studentData.length) {
     currentIndex = 0;
+    processCount = 0;
   }
 
   document.getElementById('startBtn').style.display = 'none';
@@ -64,12 +108,23 @@ function processNext() {
   }
 
   const student = studentData[currentIndex];
+  document.getElementById('currentStudent').textContent = student['姓名中文'];
   
+  // 检查是否需要暂停（每处理5个学生）
+  if (processCount >= 5) {
+    isPaused = true;
+    processCount = 0;
+    document.getElementById('pauseBtn').textContent = '继续';
+    alert('已处理5名学生，请检查报名信息是否正确后继续。');
+    return;
+  }
+
   // 发送消息给 content script
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
       action: 'fillForm',
-      data: student
+      data: student,
+      photoData: photoFiles[student['一寸照片']]
     }, function(response) {
       if (response && response.success) {
         updateSuccessCount();
@@ -78,6 +133,7 @@ function processNext() {
       }
       
       currentIndex++;
+      processCount++;
       updateProgress(currentIndex, studentData.length);
       
       // 延迟处理下一条数据，避免页面响应不及时

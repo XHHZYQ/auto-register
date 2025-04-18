@@ -9,8 +9,16 @@
   <div class="container">
     <h2>自动报名助手</h2>
     <div class="upload-section">
-      <input type="file" id="excelFile" accept=".xlsx,.xls" />
-      <p class="hint">请选择包含报名信息的 Excel 文件</p>
+      <div class="file-group">
+        <label>报名名单：</label>
+        <input type="file" id="excelFile" accept=".xlsx,.xls" />
+        <p class="hint">请选择包含报名信息的 Excel 文件</p>
+      </div>
+      <div class="file-group">
+        <label>照片文件夹：</label>
+        <input type="file" id="photoFiles" webkitdirectory directory multiple />
+        <p class="hint">请选择包含学生照片的文件夹</p>
+      </div>
     </div>
     <div class="progress-section" style="display: none;">
       <div class="progress-bar">
@@ -25,6 +33,7 @@
     <div class="status-section">
       <p>成功：<span id="successCount">0</span></p>
       <p>失败：<span id="failCount">0</span></p>
+      <p>当前处理：<span id="currentStudent">-</span></p>
     </div>
   </div>
   <script src="../libs/xlsx.min.js"></script>

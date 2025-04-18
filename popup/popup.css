@@ -13,6 +13,17 @@ h2 {
   margin-bottom: 20px;
 }
 
+.file-group {
+  margin-bottom: 15px;
+}
+
+.file-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: bold;
+}
+
 .hint {
   color: #666;
   font-size: 12px;
@@ -64,4 +75,9 @@ button:disabled {
 
 .status-section p {
   margin: 5px 0;
+}
+
+#currentStudent {
+  font-weight: bold;
+  color: #4CAF50;
 } 
