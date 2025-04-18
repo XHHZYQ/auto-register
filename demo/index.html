@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比赛报名系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://cdn.amazeui.org/amazeui/2.7.2/css/amazeui.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航菜单 -->
+        <section class="maz1 am-container">
+            <ul role="menubar" class="el-menu-demo el-menu--horizontal el-menu">
+                <li role="menuitem" tabindex="0" class="el-menu-item" :class="{ 'is-active': activeIndex === '1' }" @click="handleSelect('1')">我的团队</li>
+                <li role="menuitem" tabindex="0" class="el-menu-item" :class="{ 'is-active': activeIndex === '2' }" @click="handleSelect('2')" style="border-bottom-color: transparent;">注册新团队</li>
+            </ul>
+        </section>
+
+        <!-- 承诺书弹窗 -->
+        <div class="el-dialog__wrapper" v-show="commitmentDialogVisible">
+            <div class="el-dialog" style="width: 60%; margin-top: 15vh;">
+                <div class="el-dialog__header">
+                    <div class="dialog-title">
+                        <div class="el-row" style="text-align: center;">
+                            <span class="dialog-title-text">承诺书</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="el-dialog__body">
+                    <div>
+                        <form class="el-form el-form--label-right">
+                            <div id="license">
+                                <p>1、我（若参赛队伍为一人的，"我"为参赛选手本人或选手指导教师；若参赛人数多于一人的，"我"为参赛队伍所有选手的授权代表（简称我队伍），确保"我"有权代表参赛队伍所有成员作出承诺，自愿报名参加全国青少年劳动技能与智能设计大赛。</p>
+                                <p>2、我（我队伍）填报信息中所填写参赛选手、指导教师的信息均真实有效。</p>
+                                <p>3、我（我队伍）所上传的作品符合赛项规定,内容为我（我队伍）原创独立完成，著作权归属本人（本队伍）。</p>
+                                <p>4、正式提交参赛前，我（我队伍）已检查核实所有填报信息和上传文件，确认我（我队伍）符合申报要求和赛项规定。</p>
+                                <p>5、我（我队伍）所填报的人员信息同意全国组委会在大赛组织管理、总结评估、研究分析、发展跟踪等工作中进行公益性使用。</p>
+                                <p>6、我（我队伍）所有提交的作品同意全国组委会拥有作品的使用权，并以任何形式对作品进行展示和传播。</p>
+                                <p>7、因我（我队伍）原因导致申报材料无效、未完成申报，未通过资格审核的等原因，导致队伍无法参赛我（我队伍）愿意无条件承担相应后果。</p>
+                            </div>
+                        </form>
+                        <div align="center">
+                            <label role="checkbox" class="el-checkbox">
+                                <span class="el-checkbox__input" :class="{'is-checked': isCommitmentChecked}">
+                                    <span class="el-checkbox__inner"></span>
+                                    <input type="checkbox" class="el-checkbox__original" v-model="isCommitmentChecked">
+                                </span>
+                                <span class="el-checkbox__label">
+                                    <font color="red">*&nbsp;</font>
+                                    <span style="color: rgb(67, 67, 194);">我已阅读，继续报名</span>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="centerBtns">
+                            <button type="button" class="memOk am-btn am-btn-primary" :disabled="!isCommitmentChecked" @click="handleCommitment">确认</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报名表单 -->
+        <div id="form-container" class="form-container">
+            <!-- 指导教师选择 -->
+            <div class="titleB">&nbsp;&nbsp;登陆后使用以下指导教师信息快速注册:</div>
+            <div class="teacherICon">
+                <span v-for="teacher in teachers" :key="teacher">
+                    <button type="button" class="el-button teacherI el-button--default el-button--small" @click="selectTeacher(teacher)">
+                        <span>{{ teacher }}</span>
+                    </button>
+                </span>
+            </div>
+
+            <!-- 参赛信息 -->
+            <div class="titleB" style="margin-top: 5px; padding-left: 35px !important;">参赛信息：</div>
+            <div class="nn95c form-item">
+                <form class="am-form">
+                    <div class="flexccc">
+                        <!-- 赛项名称 -->
+                        <div>
+                            <div class="am-input-group">
+                                <span class="am-input-group-label am-input-transparent-label">
+                                    <span class="xing">*</span> 赛项名称
+                                </span>
+                                <select class="el-select">
+                                    <option value="">请选择</option>
+                                    <option value="B4">B4: 信息科技算法</option>
+                                    <option value="A1">A1: AIGC技术应用</option>
+                                    <!-- 其他选项... -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 队员组别 -->
+                        <div>
+                            <div class="am-input-group">
+                                <span class="am-input-group-label am-input-transparent-label">
+                                    <span class="xing">*</span> 队员组别
+                                </span>
+                                <select class="el-select">
+                                    <option value="">请选择</option>
+                                    <option value="middle">中学组</option>
+                                    <option value="primary">小学组</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 学校所在地区 -->
+                        <div>
+                            <div class="am-input-group">
+                                <span class="am-input-group-label am-input-transparent-label">
+                                    <span class="xing">*</span> 学校所在地区
+                                </span>
+                                <select class="el-select province-select">
+                                    <option value="">请选择省</option>
+                                    <option value="CQ">重庆</option>
+                                    <!-- 其他省份... -->
+                                </select>
+                                <select class="el-select city-select">
+                                    <option value="">请选择市</option>
+                                    <option value="CQ">重庆</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 团队名称 -->
+                    <div class="am-input-group">
+                        <span class="am-input-group-label am-input-transparent-label">
+                            <span class="xing">*</span> 团队名称
+                        </span>
+                        <input type="text" placeholder="请输入您的队名，团队名称限制在5个汉字以内" class="am-form-field">
+                    </div>
+                </form>
+            </div>
+
+            <!-- 添加队员按钮 -->
+            <div class="form-item">
+                <form class="am-form">
+                    <div class="nn95c form-item" style="padding: 0px;">
+                        <div style="text-align: center; margin: 20px 0px;">
+                            <button type="button" class="submitC am-btn am-btn-secondary" @click="showAddMemberDialog">添加队员</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div style="text-align: center;">
+                <button type="button" class="submitB am-btn am-btn-secondary am-active" @click="submitForm">预览确认</button>
+                <button type="button" class="resetB am-btn am-btn-default">返 回</button>
+            </div>
+        </div>
+
+        <!-- 添加队员弹窗 -->
+        <div class="el-dialog__wrapper member-dialog" v-show="addMemberDialogVisible">
+            <div class="el-dialog" style="width: 50%; margin-top: 15vh;">
+                <div class="el-dialog__header">
+                    <span class="el-dialog__title">添加队员</span>
+                </div>
+                <div class="el-dialog__body memBody">
+                    <form class="am-form">
+                        <!-- 姓名 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 姓名中文
+                            </span>
+                            <input type="text" placeholder="请输入您的中文姓名" class="am-form-field">
+                        </div>
+
+                        <!-- 性别 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 性别
+                            </span>
+                            <select class="el-select">
+                                <option value="">请选择</option>
+                                <option value="male">男</option>
+                                <option value="female">女</option>
+                            </select>
+                        </div>
+
+                        <!-- 民族 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 民族
+                            </span>
+                            <input type="text" placeholder="请输入您的民族" class="am-form-field">
+                        </div>
+
+                        <!-- 学校全称 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 学校全称
+                            </span>
+                            <input type="text" placeholder="请输入您的学校名称" class="am-form-field">
+                        </div>
+
+                        <!-- 年级 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 年级
+                            </span>
+                            <select class="el-select" v-model="memberForm.grade">
+                                <option value="">请选择</option>
+                                <option v-for="grade in grades" :key="grade" :value="grade">{{ grade }}</option>
+                            </select>
+                        </div>
+
+                        <!-- 证件号码 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 证件号码
+                            </span>
+                            <select class="el-select" style="width: 120px;">
+                                <option value="id">身份证号</option>
+                                <option value="passport">护照或港澳台证件</option>
+                            </select>
+                            <input type="text" placeholder="请输入身份证号" class="am-form-field">
+                        </div>
+
+                        <!-- 监护人邮箱 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 监护人邮箱
+                            </span>
+                            <input type="text" placeholder="请输入您的邮箱" class="am-form-field">
+                        </div>
+
+                        <!-- 监护人手机 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 监护人手机
+                            </span>
+                            <input type="text" placeholder="请输入您的手机号" class="am-form-field">
+                        </div>
+
+                        <!-- 一寸照片 -->
+                        <div class="am-input-group">
+                            <span class="am-input-group-label">
+                                <span class="xing">*</span> 一寸照片
+                            </span>
+                            <div class="upload-container">
+                                <input type="file" 
+                                       accept="image/*" 
+                                       class="file-input" 
+                                       @change="handlePhotoChange"
+                                       ref="photoInput">
+                                <div class="preview-container" v-if="!photoPreview">
+                                    <span>点击上传照片</span>
+                                </div>
+                                <div class="preview-container" v-else>
+                                    <img :src="photoPreview" alt="照片预览">
+                                </div>
+                            </div>
+                            <div class="upload-tip" v-if="uploadProgress > 0 && uploadProgress < 100">
+                                上传进度: {{ uploadProgress }}%
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="el-dialog__footer memFooter">
+                    <button type="button" class="el-button el-button--primary" @click="addMember">
+                        <span>提交</span>
+                    </button>
+                    <button type="button" class="el-button" @click="addMemberDialogVisible = false">
+                        <span>取消</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.amazeui.org/amazeui/2.7.2/js/amazeui.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 

@@ -19,6 +19,8 @@ function handleFileSelect(event) {
       const workbook = XLSX.read(data, { type: 'array' });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       studentData = XLSX.utils.sheet_to_json(firstSheet);
+      console.log('studentData', studentData);
+    
       
       if (studentData.length > 0) {
         // 验证Excel文件是否包含必要的列
@@ -62,15 +64,17 @@ function checkStartCondition() {
   const hasPhotoFiles = Object.keys(photoFiles).length > 0;
   
   // 验证每个学生的照片是否都存在
-  const allPhotosExist = studentData.every(student => {
-    return student['一寸照片'] && photoFiles.hasOwnProperty(student['一寸照片']);
-  });
+  // const allPhotosExist = studentData.every(student => {
+  //   console.log('photoFiles', photoFiles);
+  //   return student['一寸照片'] && photoFiles.hasOwnProperty(student['一寸照片']);
+  // });
   
-  if (hasStudentData && hasPhotoFiles && !allPhotosExist) {
-    alert('部分学生的照片文件缺失，请检查照片文件是否完整！');
-  }
+  // if (hasStudentData && hasPhotoFiles && !allPhotosExist) {
+  //   alert('部分学生的照片文件缺失，请检查照片文件是否完整！');
+  // }
   
-  document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles && allPhotosExist);
+  // document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles && allPhotosExist)
+  document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles);
 }
 
 function startProcess() {
@@ -126,6 +130,7 @@ function processNext() {
       data: student,
       photoData: photoFiles[student['一寸照片']]
     }, function(response) {
+      console.log('response', response);
       if (response && response.success) {
         updateSuccessCount();
       } else {
