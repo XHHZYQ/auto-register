@@ -9,14 +9,20 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://www.cacpaper.com/*"
+    "https://www.cacpaper.com/*",
+    "http://127.0.0.1:*/*",
+    "http://localhost:*/*"
   ],
   "action": {
     "default_popup": "popup/popup.html"
   },
   "content_scripts": [
     {
-      "matches": ["https://www.cacpaper.com/*"],
+      "matches": [
+        "https://www.cacpaper.com/*",
+        "http://127.0.0.1:*/*",
+        "http://localhost:*/*"
+      ],
       "js": ["libs/xlsx.min.js", "content/content.js"]
     }
   ],

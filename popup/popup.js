@@ -123,6 +123,8 @@ function processNext() {
     return;
   }
 
+  console.log('当前学生', student);
+  console.log('photoFiles', photoFiles[student['一寸照片']]);
   // 发送消息给 content script
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
@@ -130,7 +132,7 @@ function processNext() {
       data: student,
       photoData: photoFiles[student['一寸照片']]
     }, function(response) {
-      console.log('response', response);
+      console.log('popup 收到消息', response);
       if (response && response.success) {
         updateSuccessCount();
       } else {

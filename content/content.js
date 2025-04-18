@@ -21,8 +21,12 @@ const FIXED_OPTIONS = {
   '监护人手机': '13896097261'
 };
 
+// 初始化状态
+let isInitialized = false;
+
 // 监听来自 popup 的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('监听来自 popup 的消息', request);
   if (request.action === 'fillForm') {
     handleFormFill(request.data, request.photoData)
       .then(result => sendResponse({ success: result }))
@@ -37,11 +41,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // 处理整个报名流程
 async function handleFormFill(studentData, photoData) {
   try {
-    // 1. 点击"注册新团队"按钮
-    await clickRegisterTeamButton();
-    
-    // 2. 处理承诺书弹窗
-    await handleLicenseDialog();
+    // 如果未初始化，先进行初始化流程
+    if (!isInitialized) {
+      await initializeRegistration();
+      isInitialized = true;
+    }
     
     // 3. 随机选择指导教师
     await selectRandomTeacher();
@@ -60,6 +64,23 @@ async function handleFormFill(studentData, photoData) {
   }
 }
 
+// 初始化报名流程
+async function initializeRegistration() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 1. 点击"注册新团队"按钮
+      await clickRegisterTeamButton();
+      
+      // 2. 处理承诺书弹窗
+      await handleLicenseDialog();
+      
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 // 点击注册新团队按钮
 async function clickRegisterTeamButton() {
   return new Promise((resolve, reject) => {
@@ -70,7 +91,7 @@ async function clickRegisterTeamButton() {
       reject(new Error('Register team button not found'));
       return;
     }
-    
+    console.log('点击注册新团队按钮', registerButton);
     registerButton.click();
     resolve();
   });
@@ -80,25 +101,28 @@ async function clickRegisterTeamButton() {
 async function handleLicenseDialog() {
   return new Promise((resolve, reject) => {
     // 等待弹窗出现
-    const checkDialog = setInterval(() => {
+    const checkDialog = setTimeout(() => {
       const checkbox = document.querySelector('.el-checkbox__input input[type="checkbox"]');
       const confirmButton = document.querySelector('.memOk.am-btn-primary');
+      console.log('承诺书弹窗', checkbox, confirmButton);
       
       if (checkbox && confirmButton) {
-        clearInterval(checkDialog);
+        clearTimeout(checkDialog);
         
         // 勾选复选框
         checkbox.click();
         
         // 点击确认按钮
-        confirmButton.click();
+        setTimeout(() => {
+          confirmButton.click();
+        }, 20);
         resolve();
       }
     }, 500);
     
     // 设置超时
     setTimeout(() => {
-      clearInterval(checkDialog);
+      clearTimeout(checkDialog);
       reject(new Error('License dialog timeout'));
     }, 5000);
   });
@@ -108,37 +132,75 @@ async function handleLicenseDialog() {
 async function selectRandomTeacher() {
   return new Promise((resolve, reject) => {
     const teacherButtons = document.querySelectorAll('.teacherICon .el-button');
+    console.log('随机选择指导教师', teacherButtons);
     if (teacherButtons.length === 0) {
       reject(new Error('No teacher buttons found'));
       return;
     }
     
     const randomIndex = Math.floor(Math.random() * teacherButtons.length);
-    teacherButtons[randomIndex].click();
-    resolve();
+    console.log('随机选择指导教师', teacherButtons[randomIndex]);
+    setTimeout(() => {
+      teacherButtons[randomIndex].click();
+      resolve();
+    }, 20);
   });
 }
 
 // 填写参赛信息
 async function fillCompetitionInfo(studentData) {
-  // 选择赛项名称
-  await selectDropdownOption('赛项名称', FIXED_OPTIONS['赛项名称']);
-  
-  // 选择队员组别
-  await selectDropdownOption('队员组别', FIXED_OPTIONS['队员组别']);
-  
-  // 选择省份
-  await selectDropdownOption('省份', FIXED_OPTIONS['省份']);
-  
-  // 选择城市
-  await selectDropdownOption('城市', FIXED_OPTIONS['城市']);
-  
-  // 填写团队名称
-  const teamNameInput = document.querySelector('input[placeholder="请输入您的队名，团队名称限制在5个汉字以内"]');
-  if (teamNameInput) {
-    teamNameInput.value = `${studentData['姓名中文']}团队`;
-    teamNameInput.dispatchEvent(new Event('change', { bubbles: true }));
-  }
+    // 先找到"参赛信息"标题元素
+    const titleElement = Array.from(document.querySelectorAll('.titleB'))
+        .find(el => el.textContent.trim() === '参赛信息：');
+    
+    if (!titleElement) {
+        console.error('参赛信息标题未找到');
+        throw new Error('Competition info title not found');
+    }
+
+    // 找到表单容器
+    const formContainer = titleElement.nextElementSibling;
+    console.log('参赛信息表单', formContainer);
+    if (!formContainer || !formContainer.classList.contains('nn95c')) {
+        console.error('参赛信息表单未找到');
+        throw new Error('Competition info form not found');
+    }
+
+    // 在表单容器中查找并填写表单
+    try {
+        // 选择赛项名称
+        const competitionSelect = formContainer.querySelector('select.el-select');
+        console.log('赛项名称', competitionSelect);
+        if (competitionSelect) {
+            await handleSelect(competitionSelect, FIXED_OPTIONS['赛项名称']);
+        }
+
+        // 选择队员组别
+        const groupSelect = formContainer.querySelectorAll('select.el-select')[1];
+        console.log('队员组别', groupSelect);
+        if (groupSelect) {
+            await handleSelect(groupSelect, FIXED_OPTIONS['队员组别']);
+        }
+
+        // 选择省份和城市
+        const locationSelects = formContainer.querySelectorAll('.province-select, .city-select');
+        if (locationSelects.length >= 2) {
+            await handleSelect(locationSelects[0], FIXED_OPTIONS['省份']);
+            await handleSelect(locationSelects[1], FIXED_OPTIONS['城市']);
+        }
+
+        // 填写团队名称
+        const teamNameInput = formContainer.querySelector('input[placeholder="请输入您的队名，团队名称限制在5个汉字以内"]');
+        if (teamNameInput) {
+            teamNameInput.value = `${studentData['姓名中文']}团队`;
+            teamNameInput.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+            console.warn('团队名称输入框未找到');
+        }
+    } catch (error) {
+        console.error('填写参赛信息失败:', error);
+        throw error;
+    }
 }
 
 // 添加队员信息
@@ -146,6 +208,7 @@ async function addTeamMember(studentData, photoData) {
   return new Promise((resolve, reject) => {
     // 点击添加队员按钮
     const addButton = document.querySelector('button.submitC');
+    console.log('添加队员按钮', addButton);
     if (!addButton) {
       reject(new Error('Add member button not found'));
       return;
@@ -154,10 +217,11 @@ async function addTeamMember(studentData, photoData) {
     addButton.click();
     
     // 等待弹窗出现并填写信息
-    const checkDialog = setInterval(async () => {
+    const checkDialog = setTimeout(async () => {
       const form = document.querySelector('.memBody.am-modal-bd form');
+      console.log('添加队员弹窗', form);
       if (form) {
-        clearInterval(checkDialog);
+        clearTimeout(checkDialog);
         
         try {
           await fillMemberForm(studentData, photoData);
@@ -174,9 +238,12 @@ async function addTeamMember(studentData, photoData) {
 async function fillMemberForm(studentData, photoData) {
   for (const [field, value] of Object.entries(studentData)) {
     if (!FIELD_MAPPING[field]) continue;
+    console.log('填写队员表单 0', field, value);
     
     const selector = FIELD_MAPPING[field];
+    console.log('填写队员表单 1', selector);
     const element = document.querySelector(selector);
+    console.log('填写队员表单 2', element);
     
     if (!element) {
       console.warn(`Element not found for field: ${field}`);
