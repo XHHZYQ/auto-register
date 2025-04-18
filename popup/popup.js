@@ -57,6 +57,7 @@ function handlePhotoSelect(event) {
       reader.readAsDataURL(file);
     }
   }
+  console.log('选择照片', photoFiles);
 }
 
 function checkStartCondition() {
@@ -166,4 +167,46 @@ function updateSuccessCount() {
 function updateFailCount() {
   const element = document.getElementById('failCount');
   element.textContent = parseInt(element.textContent) + 1;
+}
+
+// 当 popup 页面加载时获取存储的数据
+document.addEventListener('DOMContentLoaded', () => {
+  // 获取当前标签页
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const currentTab = tabs[0];
+    
+    // 向 content script 发送消息获取存储的数据
+    // chrome.tabs.sendMessage(currentTab.id, { action: 'getStoredData' }, (response) => {
+    //   if (chrome.runtime.lastError) {
+    //     console.error('Error:', chrome.runtime.lastError);
+    //     return;
+    //   }
+
+    //   displayStoredData(response);
+    // });
+  });
+});
+
+// 显示存储的数据
+function displayStoredData(data) {
+  if (!data || !data.students || data.students.length === 0) {
+    return;
+  }
+
+  // 如果有学生数据，显示第一个学生的照片文件名
+  if (data.students[0] && data.students[0]['一寸照片']) {
+    const photoInput = document.getElementById('photoFiles');
+    photoInput.setAttribute('data-files', '已选择照片文件夹');
+  }
+
+  // 显示 Excel 文件已选择状态
+  const excelInput = document.getElementById('excelFile');
+  excelInput.setAttribute('data-files', '已选择报名名单');
+
+  // 恢复之前的数据到全局变量
+  studentData = data.students;
+  photoFiles = data.photos;
+  
+  // 检查开始按钮状态
+  checkStartCondition();
 } 

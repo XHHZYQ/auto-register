@@ -80,4 +80,21 @@ button:disabled {
 #currentStudent {
   font-weight: bold;
   color: #4CAF50;
+}
+
+.file-group input[type="file"] {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.file-group input[type="file"][data-files]::before {
+  content: attr(data-files);
+  display: inline-block;
+  background: #e8f0fe;
+  border: 1px solid #4285f4;
+  border-radius: 3px;
+  padding: 3px 8px;
+  margin-right: 8px;
+  color: #1967d2;
+  font-size: 12px;
 } 
