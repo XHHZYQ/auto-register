@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,13 +9,16 @@
     <!-- <link rel="stylesheet" href="https://cdn.amazeui.org/amazeui/2.7.2/css/amazeui.min.css"> -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div id="app">
         <!-- 导航菜单 -->
         <section class="maz1 am-container">
             <ul role="menubar" class="el-menu-demo el-menu--horizontal el-menu">
-                <li role="menuitem" tabindex="0" class="el-menu-item" :class="{ 'is-active': activeIndex === '1' }" @click="handleSelect('1')">我的团队</li>
-                <li role="menuitem" tabindex="0" class="el-menu-item" :class="{ 'is-active': activeIndex === '2' }" @click="handleSelect('2')" style="border-bottom-color: transparent;">注册新团队</li>
+                <li role="menuitem" tabindex="0" class="el-menu-item" :class="{ 'is-active': activeIndex === '1' }"
+                    @click="handleSelect('1')">我的团队</li>
+                <li role="menuitem" tabindex="0" class="el-menu-item" :class="{ 'is-active': activeIndex === '2' }"
+                    @click="handleSelect('2')" style="border-bottom-color: transparent;">注册新团队</li>
             </ul>
         </section>
 
@@ -32,7 +36,8 @@
                     <div>
                         <form class="el-form el-form--label-right">
                             <div id="license">
-                                <p>1、我（若参赛队伍为一人的，"我"为参赛选手本人或选手指导教师；若参赛人数多于一人的，"我"为参赛队伍所有选手的授权代表（简称我队伍），确保"我"有权代表参赛队伍所有成员作出承诺，自愿报名参加全国青少年劳动技能与智能设计大赛。</p>
+                                <p>1、我（若参赛队伍为一人的，"我"为参赛选手本人或选手指导教师；若参赛人数多于一人的，"我"为参赛队伍所有选手的授权代表（简称我队伍），确保"我"有权代表参赛队伍所有成员作出承诺，自愿报名参加全国青少年劳动技能与智能设计大赛。
+                                </p>
                                 <p>2、我（我队伍）填报信息中所填写参赛选手、指导教师的信息均真实有效。</p>
                                 <p>3、我（我队伍）所上传的作品符合赛项规定,内容为我（我队伍）原创独立完成，著作权归属本人（本队伍）。</p>
                                 <p>4、正式提交参赛前，我（我队伍）已检查核实所有填报信息和上传文件，确认我（我队伍）符合申报要求和赛项规定。</p>
@@ -54,7 +59,8 @@
                             </label>
                         </div>
                         <div class="centerBtns">
-                            <button type="button" class="memOk am-btn am-btn-primary" :disabled="!isCommitmentChecked" @click="handleCommitment">确认</button>
+                            <button type="button" class="memOk am-btn am-btn-primary" :disabled="!isCommitmentChecked"
+                                @click="handleCommitment">确认</button>
                         </div>
                     </div>
                 </div>
@@ -67,7 +73,8 @@
             <div class="titleB">&nbsp;&nbsp;登陆后使用以下指导教师信息快速注册:</div>
             <div class="teacherICon">
                 <span v-for="teacher in teachers" :key="teacher">
-                    <button type="button" class="el-button teacherI el-button--default el-button--small" @click="selectTeacher(teacher)">
+                    <button type="button" class="el-button teacherI el-button--default el-button--small"
+                        @click="selectTeacher(teacher)">
                         <span>{{ teacher }}</span>
                     </button>
                 </span>
@@ -75,64 +82,338 @@
 
             <!-- 参赛信息 -->
             <div class="titleB" style="margin-top: 5px; padding-left: 35px !important;">参赛信息：</div>
-            <div class="nn95c form-item">
-                <form class="am-form">
-                    <div class="flexccc">
-                        <!-- 赛项名称 -->
-                        <div>
-                            <div class="am-input-group">
-                                <span class="am-input-group-label am-input-transparent-label">
-                                    <span class="xing">*</span> 赛项名称
+            <div data-v-a9448e26="" class="nn95c form-item">
+                <form data-v-a9448e26="" class="am-form" model="[object Object]"><!---->
+                    <div data-v-a9448e26="" class="flexccc">
+                        <div data-v-a9448e26="">
+                            <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                    class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                        class="xing">*</span> 赛项名称
                                 </span>
-                                <select class="el-select">
-                                    <option value="">请选择</option>
-                                    <option value="B4">B4: 信息科技算法</option>
-                                    <option value="A1">A1: AIGC技术应用</option>
-                                    <!-- 其他选项... -->
-                                </select>
+                                <div data-v-a9448e26="" class="el-select el-select--small" style="width: 100%;"><!---->
+                                    <div class="el-input el-input--small el-input--suffix"><!----><input type="text"
+                                            autocomplete="off" placeholder="请选择" readonly="readonly"
+                                            class="el-input__inner"><!----><span class="el-input__suffix"><span
+                                                class="el-input__suffix-inner"><i
+                                                    class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----></span><!----></span><!---->
+                                    </div>
+                                    <div class="el-select-dropdown el-popper"
+                                        style="display: none; min-width: 219.453px;">
+                                        <div class="el-scrollbar" style="">
+                                            <div
+                                                class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+                                                <ul class="el-scrollbar__view el-select-dropdown__list"
+                                                    style="position: relative;">
+                                                    <div class="resize-triggers">
+                                                        <div class="expand-trigger">
+                                                            <div style="width: 1px; height: 1px;"></div>
+                                                        </div>
+                                                        <div class="contract-trigger"></div>
+                                                    </div><!---->
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>A1:
+                                                            AIGC技术应用</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>A2:
+                                                            机械设计</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>A3:
+                                                            机械装载</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>A4:
+                                                            无人机精准操控</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>B1:
+                                                            Python智能应用编程</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>B2:
+                                                            解码地球</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>B3:
+                                                            宜居行星</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>B4:
+                                                            信息科技算法</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>B5:
+                                                            智能蓝图</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>C1:
+                                                            超级工匠</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>C2:
+                                                            火场救援</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>C3:
+                                                            机械臂协同</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>C4:
+                                                            智能家居</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>D1:
+                                                            太空基地</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>D2:
+                                                            智慧物流</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>D3:
+                                                            智能对决</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item"><span>D4:
+                                                            AI视觉设计</span></li>
+                                                </ul>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-horizontal">
+                                                <div class="el-scrollbar__thumb" style="transform: translateX(0%);">
+                                                </div>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-vertical">
+                                                <div class="el-scrollbar__thumb" style="transform: translateY(0%);">
+                                                </div>
+                                            </div>
+                                        </div><!---->
+                                    </div>
+                                    <div class="resize-triggers">
+                                        <div class="expand-trigger">
+                                            <div style="width: 220px; height: 33px;"></div>
+                                        </div>
+                                        <div class="contract-trigger"></div>
+                                    </div>
+                                </div> <!----> <!---->
                             </div>
                         </div>
-
-                        <!-- 队员组别 -->
-                        <div>
-                            <div class="am-input-group">
-                                <span class="am-input-group-label am-input-transparent-label">
-                                    <span class="xing">*</span> 队员组别
+                        <div data-v-a9448e26="">
+                            <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                    class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                        class="xing">*</span> 队员组别
                                 </span>
-                                <select class="el-select">
-                                    <option value="">请选择</option>
-                                    <option value="middle">中学组</option>
-                                    <option value="primary">小学组</option>
-                                </select>
+                                <div data-v-a9448e26="" class="el-select el-select--small" style="width: 100%;"><!---->
+                                    <div class="el-input el-input--small el-input--suffix"><!----><input type="text"
+                                            autocomplete="off" placeholder="请选择" readonly="readonly"
+                                            class="el-input__inner"><!----><span class="el-input__suffix"><span
+                                                class="el-input__suffix-inner"><i
+                                                    class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----></span><!----></span><!---->
+                                    </div>
+                                    <div class="el-select-dropdown el-popper"
+                                        style="display: none; min-width: 219.453px;">
+                                        <div class="el-scrollbar" style="display: none;">
+                                            <div
+                                                class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+                                                <ul class="el-scrollbar__view el-select-dropdown__list"
+                                                    style="position: relative;">
+                                                    <div class="resize-triggers">
+                                                        <div class="expand-trigger">
+                                                            <div style="width: 1px; height: 1px;"></div>
+                                                        </div>
+                                                        <div class="contract-trigger"></div>
+                                                    </div>
+                                                </ul>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-horizontal">
+                                                <div class="el-scrollbar__thumb" style="transform: translateX(0%);">
+                                                </div>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-vertical">
+                                                <div class="el-scrollbar__thumb" style="transform: translateY(0%);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="el-select-dropdown__empty">
+                                            无数据
+                                        </p>
+                                    </div>
+                                    <div class="resize-triggers">
+                                        <div class="expand-trigger">
+                                            <div style="width: 220px; height: 33px;"></div>
+                                        </div>
+                                        <div class="contract-trigger"></div>
+                                    </div>
+                                </div> <!----> <!---->
                             </div>
                         </div>
-
-                        <!-- 学校所在地区 -->
-                        <div>
-                            <div class="am-input-group">
-                                <span class="am-input-group-label am-input-transparent-label">
-                                    <span class="xing">*</span> 学校所在地区
+                        <div data-v-a9448e26="">
+                            <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                    class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                        class="xing">*</span> 学校所在地区
                                 </span>
-                                <select class="el-select province-select">
-                                    <option value="">请选择省</option>
-                                    <option value="CQ">重庆</option>
-                                    <!-- 其他省份... -->
-                                </select>
-                                <select class="el-select city-select">
-                                    <option value="">请选择市</option>
-                                    <option value="CQ">重庆</option>
-                                </select>
+                                <div data-v-a9448e26="" class="el-select el-select--small" style="width: 40%;"><!---->
+                                    <div class="el-input el-input--small el-input--suffix"><!----><input type="text"
+                                            autocomplete="off" placeholder="请选择省" readonly="readonly"
+                                            class="el-input__inner"><!----><span class="el-input__suffix"><span
+                                                class="el-input__suffix-inner"><i
+                                                    class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----></span><!----></span><!---->
+                                    </div>
+                                    <div class="el-select-dropdown el-popper"
+                                        style="display: none; min-width: 87.7188px;">
+                                        <div class="el-scrollbar" style="">
+                                            <div
+                                                class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+                                                <ul class="el-scrollbar__view el-select-dropdown__list"
+                                                    style="position: relative;">
+                                                    <div class="resize-triggers">
+                                                        <div class="expand-trigger">
+                                                            <div style="width: 1px; height: 1px;"></div>
+                                                        </div>
+                                                        <div class="contract-trigger"></div>
+                                                    </div><!---->
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>北京</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>天津</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>河北</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>山西</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>内蒙古</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>辽宁</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>吉林</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>黑龙江</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>上海</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>江苏</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>浙江</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>安徽</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>福建</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>江西</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>山东</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>河南</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>湖北</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>湖南</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>广东</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>广西</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>海南</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>重庆</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>四川</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>贵州</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>云南</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>西藏</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>陕西</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>甘肃</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>青海</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>宁夏</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>新疆</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>台湾</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>香港</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>澳门</span>
+                                                    </li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>海外</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-horizontal">
+                                                <div class="el-scrollbar__thumb" style="transform: translateX(0%);">
+                                                </div>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-vertical">
+                                                <div class="el-scrollbar__thumb" style="transform: translateY(0%);">
+                                                </div>
+                                            </div>
+                                        </div><!---->
+                                    </div>
+                                    <div class="resize-triggers">
+                                        <div class="expand-trigger">
+                                            <div style="width: 89px; height: 33px;"></div>
+                                        </div>
+                                        <div class="contract-trigger"></div>
+                                    </div>
+                                </div>
+                                <div data-v-a9448e26="" class="el-select el-select--small"
+                                    style="width: 40%; margin-left: 16px;"><!---->
+                                    <div class="el-input el-input--small el-input--suffix"><!----><input type="text"
+                                            autocomplete="off" placeholder="请选择市" readonly="readonly"
+                                            class="el-input__inner"><!----><span class="el-input__suffix"><span
+                                                class="el-input__suffix-inner"><i
+                                                    class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----></span><!----></span><!---->
+                                    </div>
+                                    <div class="el-select-dropdown el-popper"
+                                        style="display: none; min-width: 87.7188px;">
+                                        <div class="el-scrollbar" style="display: none;">
+                                            <div
+                                                class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+                                                <ul class="el-scrollbar__view el-select-dropdown__list"
+                                                    style="position: relative;">
+                                                    <div class="resize-triggers">
+                                                        <div class="expand-trigger">
+                                                            <div style="width: 1px; height: 1px;"></div>
+                                                        </div>
+                                                        <div class="contract-trigger"></div>
+                                                    </div>
+                                                </ul>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-horizontal">
+                                                <div class="el-scrollbar__thumb" style="transform: translateX(0%);">
+                                                </div>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-vertical">
+                                                <div class="el-scrollbar__thumb" style="transform: translateY(0%);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="el-select-dropdown__empty">
+                                            无数据
+                                        </p>
+                                    </div>
+                                    <div class="resize-triggers">
+                                        <div class="expand-trigger">
+                                            <div style="width: 89px; height: 33px;"></div>
+                                        </div>
+                                        <div class="contract-trigger"></div>
+                                    </div>
+                                </div> <!----> <!---->
                             </div>
                         </div>
                     </div>
-
-                    <!-- 团队名称 -->
-                    <div class="am-input-group">
-                        <span class="am-input-group-label am-input-transparent-label">
-                            <span class="xing">*</span> 团队名称
-                        </span>
-                        <input type="text" placeholder="请输入您的队名，团队名称限制在5个汉字以内" class="am-form-field">
-                    </div>
+                    <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                            class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                class="xing">*</span> 团队名称
+                        </span> <input data-v-a9448e26="" type="text" placeholder="请输入您的队名，团队名称限制在5个汉字以内"
+                            class="am-form-field"> <!----> <!----></div>
                 </form>
             </div>
 
@@ -141,7 +422,8 @@
                 <form class="am-form">
                     <div class="nn95c form-item" style="padding: 0px;">
                         <div style="text-align: center; margin: 20px 0px;">
-                            <button type="button" class="submitC am-btn am-btn-secondary" @click="showAddMemberDialog">添加队员</button>
+                            <button type="button" class="submitC am-btn am-btn-secondary"
+                                @click="showAddMemberDialog">添加队员</button>
                         </div>
                     </div>
                 </form>
@@ -149,7 +431,8 @@
 
             <!-- 提交按钮 -->
             <div style="text-align: center;">
-                <button type="button" class="submitB am-btn am-btn-secondary am-active" @click="submitForm">预览确认</button>
+                <button type="button" class="submitB am-btn am-btn-secondary am-active"
+                    @click="submitForm">预览确认</button>
                 <button type="button" class="resetB am-btn am-btn-default">返 回</button>
             </div>
         </div>
@@ -160,105 +443,252 @@
                 <div class="el-dialog__header">
                     <span class="el-dialog__title">添加队员</span>
                 </div>
-                <div class="el-dialog__body memBody am-modal-bd">
-                    <form class="am-form">
-                        <!-- 姓名 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 姓名中文
-                            </span>
-                            <input type="text" placeholder="请输入中文姓名" class="am-form-field">
-                        </div>
-
-                        <!-- 性别 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 性别
-                            </span>
-                            <select class="el-select">
-                                <option value="">请选择</option>
-                                <option value="male">男</option>
-                                <option value="female">女</option>
-                            </select>
-                        </div>
-
-                        <!-- 民族 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 民族
-                            </span>
-                            <input type="text" placeholder="请输入民族" class="am-form-field">
-                        </div>
-
-                        <!-- 学校全称 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 学校全称
-                            </span>
-                            <input type="text" placeholder="请输入学校名称" class="am-form-field">
-                        </div>
-
-                        <!-- 年级 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 年级
-                            </span>
-                            <select class="el-select" v-model="memberForm.grade">
-                                <option value="">请选择</option>
-                                <option v-for="grade in grades" :key="grade" :value="grade">{{ grade }}</option>
-                            </select>
-                        </div>
-
-                        <!-- 证件号码 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 证件号码
-                            </span>
-                            <select class="el-select" style="width: 120px;">
-                                <option value="id">身份证号</option>
-                                <option value="passport">护照或港澳台证件</option>
-                            </select>
-                            <input type="text" placeholder="请输入身份证号" class="am-form-field">
-                        </div>
-
-                        <!-- 监护人邮箱 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 监护人邮箱
-                            </span>
-                            <input type="text" placeholder="请输入邮箱" class="am-form-field">
-                        </div>
-
-                        <!-- 监护人手机 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 监护人手机
-                            </span>
-                            <input type="text" placeholder="请输入手机号" class="am-form-field">
-                        </div>
-
-                        <!-- 一寸照片 -->
-                        <div class="am-input-group">
-                            <span class="am-input-group-label">
-                                <span class="xing">*</span> 一寸照片
-                            </span>
-                            <div class="upload-container">
-                                <input type="file" 
-                                       accept="image/*" 
-                                       class="file-input" 
-                                       @change="handlePhotoChange"
-                                       ref="photoInput">
-                                <div class="preview-container" v-if="!photoPreview">
-                                    <span>点击上传照片</span>
-                                </div>
-                                <div class="preview-container" v-else>
-                                    <img :src="photoPreview" alt="照片预览">
+                <div data-v-a9448e26="" class="memBody am-modal-bd">
+                    <form data-v-a9448e26="" class="am-form">
+                        <div data-v-a9448e26="" class="flexccc">
+                            <div data-v-a9448e26="">
+                                <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                        class="disTtl am-input-group-label am-input-transparent-label"><span
+                                            data-v-a9448e26="" class="xing">*</span> 姓名中文
+                                    </span> <input data-v-a9448e26="" type="text" placeholder="请输入中文姓名"
+                                        class="am-form-field"> <!----> <!----></div>
+                            </div>
+                            <div data-v-a9448e26="">
+                                <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                        class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                            class="xing">*</span> 性别
+                                    </span>
+                                    <div data-v-a9448e26="" class="el-select el-select--small"><!---->
+                                        <div class="el-input el-input--small el-input--suffix"><!----><input type="text"
+                                                autocomplete="off" placeholder="请选择" readonly="readonly"
+                                                class="el-input__inner"><!----><span class="el-input__suffix"><span
+                                                    class="el-input__suffix-inner"><i
+                                                        class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----></span><!----></span><!---->
+                                        </div>
+                                        <div class="el-select-dropdown el-popper"
+                                            style="display: none; min-width: 117.016px;">
+                                            <div class="el-scrollbar" style="">
+                                                <div
+                                                    class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+                                                    <ul class="el-scrollbar__view el-select-dropdown__list"
+                                                        style="position: relative;"><!---->
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>女</span></li>
+                                                        <li data-v-a9448e26=""
+                                                            class="el-select-dropdown__item selected"><span>男</span>
+                                                        </li>
+                                                        <div class="resize-triggers">
+                                                            <div class="expand-trigger">
+                                                                <div style="width: 1px; height: 1px;"></div>
+                                                            </div>
+                                                            <div class="contract-trigger"></div>
+                                                        </div>
+                                                    </ul>
+                                                </div>
+                                                <div class="el-scrollbar__bar is-horizontal">
+                                                    <div class="el-scrollbar__thumb" style="transform: translateX(0%);">
+                                                    </div>
+                                                </div>
+                                                <div class="el-scrollbar__bar is-vertical">
+                                                    <div class="el-scrollbar__thumb" style="transform: translateY(0%);">
+                                                    </div>
+                                                </div>
+                                            </div><!---->
+                                        </div>
+                                        <div class="resize-triggers">
+                                            <div class="expand-trigger">
+                                                <div style="width: 118px; height: 33px;"></div>
+                                            </div>
+                                            <div class="contract-trigger"></div>
+                                        </div>
+                                    </div> <!----> <!---->
                                 </div>
                             </div>
-                            <div class="upload-tip" v-if="uploadProgress > 0 && uploadProgress < 100">
-                                上传进度: {{ uploadProgress }}%
+                            <div data-v-a9448e26="">
+                                <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                        class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                            class="xing">*</span> 民族
+                                    </span> <input data-v-a9448e26="" type="text" placeholder="请输入民族"
+                                        class="am-form-field"> <!----> <!----></div>
                             </div>
                         </div>
+                        <div data-v-a9448e26="" class="flexccc">
+                            <div data-v-a9448e26="" style="flex: 2 1 0%;">
+                                <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                        class="disTtl am-input-group-label am-input-transparent-label"><span
+                                            data-v-a9448e26="" class="xing">*</span> 学校全称
+                                    </span> <input data-v-a9448e26="" type="text" placeholder="请输入学校名称"
+                                        class="am-form-field"> <!----> <!----></div>
+                            </div>
+                            <div data-v-a9448e26="">
+                                <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                        class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                            class="xing">*</span> 年级
+                                    </span>
+                                    <div data-v-a9448e26="" class="el-select el-select--small"><!---->
+                                        <div class="el-input el-input--small el-input--suffix"><!----><input type="text"
+                                                autocomplete="off" placeholder="请选择" readonly="readonly"
+                                                class="el-input__inner"><!----><span class="el-input__suffix"><span
+                                                    class="el-input__suffix-inner"><i
+                                                        class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----></span><!----></span><!---->
+                                        </div>
+                                        <div class="el-select-dropdown el-popper"
+                                            style="display: none; min-width: 117.016px;">
+                                            <div class="el-scrollbar">
+                                                <div
+                                                    class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+                                                    <ul class="el-scrollbar__view el-select-dropdown__list"
+                                                        style="position: relative;"><!---->
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>1年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>2年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>3年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>4年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>5年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>6年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>7年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>8年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>9年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>10年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>11年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>12年级</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>中专</span></li>
+                                                        <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                            <span>高职</span></li>
+                                                        <div class="resize-triggers">
+                                                            <div class="expand-trigger">
+                                                                <div style="width: 1px; height: 1px;"></div>
+                                                            </div>
+                                                            <div class="contract-trigger"></div>
+                                                        </div>
+                                                    </ul>
+                                                </div>
+                                                <div class="el-scrollbar__bar is-horizontal">
+                                                    <div class="el-scrollbar__thumb" style="transform: translateX(0%);">
+                                                    </div>
+                                                </div>
+                                                <div class="el-scrollbar__bar is-vertical">
+                                                    <div class="el-scrollbar__thumb" style="transform: translateY(0%);">
+                                                    </div>
+                                                </div>
+                                            </div><!---->
+                                        </div>
+                                        <div class="resize-triggers">
+                                            <div class="expand-trigger">
+                                                <div style="width: 118px; height: 33px;"></div>
+                                            </div>
+                                            <div class="contract-trigger"></div>
+                                        </div>
+                                    </div> <!----> <!---->
+                                </div>
+                            </div>
+                        </div> <!---->
+                        <div data-v-a9448e26="" class="bigC">
+                            <div data-v-a9448e26="" class="idCardC am-input-group"><span data-v-a9448e26=""
+                                    class="disTtl am-input-group-label am-input-transparent-label"><span
+                                        data-v-a9448e26="" class="xing">*</span> 证件号码
+                                </span>
+                                <div data-v-a9448e26="" class="el-select el-select--small"
+                                    style="margin-right: 10px; width: 158px;"><!---->
+                                    <div class="el-input el-input--small el-input--suffix"><!----><input type="text"
+                                            autocomplete="off" placeholder="请选择" readonly="readonly"
+                                            class="el-input__inner"><!----><span class="el-input__suffix"><span
+                                                class="el-input__suffix-inner"><i
+                                                    class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----></span><!----></span><!---->
+                                    </div>
+                                    <div class="el-select-dropdown el-popper" style="display: none; min-width: 158px;">
+                                        <div class="el-scrollbar" style="">
+                                            <div
+                                                class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+                                                <ul class="el-scrollbar__view el-select-dropdown__list"
+                                                    style="position: relative;"><!---->
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item selected">
+                                                        <span>身份证号</span></li>
+                                                    <li data-v-a9448e26="" class="el-select-dropdown__item">
+                                                        <span>护照或港澳台证件</span></li>
+                                                    <div class="resize-triggers">
+                                                        <div class="expand-trigger">
+                                                            <div style="width: 1px; height: 1px;"></div>
+                                                        </div>
+                                                        <div class="contract-trigger"></div>
+                                                    </div>
+                                                </ul>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-horizontal">
+                                                <div class="el-scrollbar__thumb" style="transform: translateX(0%);">
+                                                </div>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-vertical">
+                                                <div class="el-scrollbar__thumb" style="transform: translateY(0%);">
+                                                </div>
+                                            </div>
+                                        </div><!---->
+                                    </div>
+                                    <div class="resize-triggers">
+                                        <div class="expand-trigger">
+                                            <div style="width: 159px; height: 33px;"></div>
+                                        </div>
+                                        <div class="contract-trigger"></div>
+                                    </div>
+                                </div> <input data-v-a9448e26="" type="text" placeholder="请输入身份证号"
+                                    class="am-form-field"> <input data-v-a9448e26="" type="text"
+                                    placeholder="请输入护照或港澳台证件号" class="am-form-field" style="display: none;"> <!---->
+                                <!---->
+                            </div>
+                        </div>
+                        <div data-v-a9448e26="" class="litC"><span data-v-a9448e26=""
+                                class="am-input-group-label am-input-transparent-label" slot="prepend"><span
+                                    data-v-a9448e26="" class="xing">*</span> 身份证号
+                            </span>
+                            <div data-v-a9448e26="" class="idCardC am-input-group"><!----> <input data-v-a9448e26=""
+                                    type="text" placeholder="请输入身份证号" class="am-form-field"> <button data-v-a9448e26=""
+                                    type="button" class="btn40 am-btn am-btn-default">切换 <!----></button> <!---->
+                                <!----></div> <!----> <!---->
+                        </div>
+                        <div data-v-a9448e26="" class="flexccc">
+                            <div data-v-a9448e26="">
+                                <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                        class="disTtl am-input-group-label am-input-transparent-label"><span
+                                            data-v-a9448e26="" class="xing">*</span> 监护人邮箱
+                                    </span> <input data-v-a9448e26="" type="text" placeholder="请输入邮箱"
+                                        class="am-form-field"> <!----> <!----></div>
+                            </div>
+                            <div data-v-a9448e26="">
+                                <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                        class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                            class="xing">*</span> 监护人手机
+                                    </span> <input data-v-a9448e26="" type="text" placeholder="请输入手机号"
+                                        class="am-form-field"> <!----> <!----></div>
+                            </div>
+                        </div>
+                        <div data-v-a9448e26="" class="am-input-group"><span data-v-a9448e26=""
+                                class="am-input-group-label am-input-transparent-label"><span data-v-a9448e26=""
+                                    class="xing">*</span> 一寸照片
+                            </span>
+                            <div data-v-a9448e26="">
+                                <div data-v-fb1af3ce="" data-v-a9448e26="" class="upload-container">
+                                    <div data-v-fb1af3ce="" class="avatar-uploader">
+                                        <div tabindex="0" class="el-upload el-upload--text"><i data-v-fb1af3ce=""
+                                                class="el-icon-plus avatar-uploader-icon"
+                                                style="border: 1px solid rgb(217, 217, 217);"></i><input type="file"
+                                                name="file" class="el-upload__input"></div>
+                                    </div>
+                                </div> <small data-v-a9448e26="" class="avatar-uploader-info"
+                                    style="color: rgb(245, 34, 45);">请上传队员的一寸照片（最大限制10M）</small>
+                            </div> <!----> <!---->
+                        </div> <!----> <!---->
                     </form>
                 </div>
                 <div class="el-dialog__footer memFooter">
@@ -278,4 +708,5 @@
     <!-- <script src="https://cdn.amazeui.org/amazeui/2.7.2/js/amazeui.min.js"></script> -->
     <script src="js/main.js"></script>
 </body>
-</html> 
+
+</html>

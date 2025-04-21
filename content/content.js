@@ -1,10 +1,10 @@
 // 字段映射配置
 const FIELD_MAPPING = {
   '姓名中文': 'input[placeholder="请输入中文姓名"]',
-  '性别': '.am-input-group:has(span:contains("性别")) select',
+  '性别': '.am-input-group:has(span:contains("性别")) .el-select',
   '民族': 'input[placeholder="请输入民族"]',
   '学校全称': 'input[placeholder="请输入学校名称"]',
-  '年级': '.am-input-group:has(span:contains("年级")) select',
+  '年级': '.am-input-group:has(span:contains("年级")) .el-select',
   '身份证号': 'input[placeholder="请输入身份证号"]',
   '监护人邮箱': 'input[placeholder="请输入邮箱"]',
   '监护人手机': 'input[placeholder="请输入手机号"]',
@@ -132,8 +132,8 @@ async function handleLicenseDialog() {
         // 点击确认按钮
         setTimeout(() => {
           confirmButton.click();
-        }, 20);
         resolve();
+        }, 2000);
       }
     }, 500);
 
@@ -145,74 +145,123 @@ async function handleLicenseDialog() {
   });
 }
 
-// 随机选择指导教师
-async function selectRandomTeacher() {
+// 辅助函数：等待元素出现
+async function waitForElement(selector, timeout = 10000) {
   return new Promise((resolve, reject) => {
-    const teacherButtons = document.querySelectorAll('.teacherICon .el-button');
-    console.log('随机选择指导教师', teacherButtons);
-    if (teacherButtons.length === 0) {
-      reject(new Error('No teacher buttons found'));
-      return;
+    if (document.querySelector(selector)) {
+      return resolve(document.querySelector(selector));
     }
 
-    const randomIndex = Math.floor(Math.random() * teacherButtons.length);
-    console.log('随机选择指导教师', teacherButtons[randomIndex]);
+    const observer = new MutationObserver((mutations) => {
+      const element = document.querySelector(selector);
+      if (element) {
+        observer.disconnect();
+        resolve(element);
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
     setTimeout(() => {
-      teacherButtons[randomIndex].click();
-      resolve();
-    }, 20);
+      observer.disconnect();
+      reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+    }, timeout);
   });
 }
 
-// 填写参赛信息
+// 辅助函数：等待下拉选项加载完成
+async function waitForDropdownOptions(selector, timeout = 10000) {
+  return new Promise((resolve, reject) => {
+    const observer = new MutationObserver((mutations) => {
+      const options = document.querySelectorAll(selector);
+      if (options && options.length > 0) {
+        observer.disconnect();
+        resolve(Array.from(options));
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    setTimeout(() => {
+      observer.disconnect();
+      reject(new Error(`Dropdown options not found within ${timeout}ms`));
+    }, timeout);
+  });
+}
+
+// 修改随机选择指导教师函数
+async function selectRandomTeacher() {
+  try {
+    // 等待指导教师按钮出现
+    const teacherButtons = await waitForElement('.teacherICon .el-button');
+    if (!teacherButtons) {
+      throw new Error('No teacher buttons found');
+    }
+
+    const buttons = document.querySelectorAll('.teacherICon .el-button');
+    const randomIndex = Math.floor(Math.random() * buttons.length);
+    buttons[randomIndex].click();
+    
+    return Promise.resolve();
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
+// 修改填写参赛信息函数
 async function fillCompetitionInfo(studentData) {
-  // 先找到"参赛信息"标题元素
-  const titleElement = Array.from(document.querySelectorAll('.titleB'))
+  try {
+    // 先找到"参赛信息"标题元素
+    const titleElement = Array.from(document.querySelectorAll('.titleB'))
     .find(el => el.textContent.trim() === '参赛信息：');
 
-  if (!titleElement) {
+    if (!titleElement) {
     console.error('参赛信息标题未找到');
     throw new Error('Competition info title not found');
-  }
+    }
 
-  // 找到表单容器
-  const formContainer = titleElement.nextElementSibling;
-  console.log('参赛信息表单', formContainer);
-  if (!formContainer || !formContainer.classList.contains('nn95c')) {
+    // 找到表单容器
+    const formContainer = titleElement.nextElementSibling;
+    console.log('参赛信息表单', formContainer);
+    if (!formContainer || !formContainer.classList.contains('nn95c')) {
     console.error('参赛信息表单未找到');
     throw new Error('Competition info form not found');
-  }
+    }
 
-  // 在表单容器中查找并填写表单
-  try {
     // 选择赛项名称
-    const competitionSelect = formContainer.querySelector('select.el-select');
-    console.log('赛项名称', competitionSelect);
+    const competitionSelect = await waitForElement('.el-select');
     if (competitionSelect) {
       await handleSelect(competitionSelect, FIXED_OPTIONS['赛项名称']);
     }
 
-    // 选择队员组别
-    const groupSelect = formContainer.querySelectorAll('select.el-select')[1];
-    console.log('队员组别', groupSelect);
+    // 等待并选择队员组别
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 等待接口返回
+    const groupSelect = formContainer.querySelectorAll('.el-select')[1];
     if (groupSelect) {
       await handleSelect(groupSelect, FIXED_OPTIONS['队员组别']);
     }
 
     // 选择省份和城市
-    const locationSelects = formContainer.querySelectorAll('.province-select, .city-select');
-    if (locationSelects.length >= 2) {
-      await handleSelect(locationSelects[0], FIXED_OPTIONS['省份']);
-      await handleSelect(locationSelects[1], FIXED_OPTIONS['城市']);
+    const locationSelects = formContainer.querySelectorAll('.el-select');
+    if (locationSelects.length >= 4) {
+      await handleSelect(locationSelects[2], FIXED_OPTIONS['省份']);
+      // 等待城市列表加载
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await handleSelect(locationSelects[3], FIXED_OPTIONS['城市']);
     }
 
     // 填写团队名称
-    const teamNameInput = formContainer.querySelector('input[placeholder="请输入您的队名，团队名称限制在5个汉字以内"]');
+    const teamNameInput = await waitForElement('input[placeholder="请输入您的队名，团队名称限制在5个汉字以内"]');
     if (teamNameInput) {
       teamNameInput.value = `${studentData['姓名中文']}团队`;
       teamNameInput.dispatchEvent(new Event('change', { bubbles: true }));
-    } else {
-      console.warn('团队名称输入框未找到');
+      teamNameInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
   } catch (error) {
     console.error('填写参赛信息失败:', error);
@@ -242,7 +291,9 @@ async function addTeamMember(studentData, photoData) {
 
         try {
           await fillMemberForm(studentData, photoData);
-          resolve();
+          setTimeout(() => {
+            resolve();
+          }, 2000);
         } catch (error) {
           reject(error);
         }
@@ -254,10 +305,15 @@ async function addTeamMember(studentData, photoData) {
 // 辅助函数：通过label文本查找对应的select元素
 function findSelectByLabel(container, labelText) {
   const groups = container.querySelectorAll('.am-input-group');
+  console.log('groups', groups);
   for (const group of groups) {
     const label = group.querySelector('.am-input-group-label');
+    console.log('label', label);
+    console.log('label.textContent', label.textContent);
+    console.log('includes(labelText)', label.textContent.includes(labelText));
     if (label && label.textContent.includes(labelText)) {
-      return group.querySelector('select');
+      console.log('group.querySelector(".el-select")', group.querySelector('.el-select'));
+      return group.querySelector('.el-select');
     }
   }
   return null;
@@ -265,17 +321,23 @@ function findSelectByLabel(container, labelText) {
 
 // 填写队员表单
 async function fillMemberForm(studentData, photoData) {
+  // 获取弹窗表单容器
+  const formContainer = document.querySelector('.memBody.am-modal-bd');
+  if (!formContainer) {
+    throw new Error('Member form container not found');
+  }
+
   for (const [field, value] of Object.entries(studentData)) {
     if (!FIELD_MAPPING[field]) continue;
     console.log('填写队员表单 0', field, value);
 
     let element;
     if (field === '性别' || field === '年级') {
-      element = findSelectByLabel(document, field);
+      element = findSelectByLabel(formContainer, field);
     } else {
       const selector = FIELD_MAPPING[field];
       console.log('填写队员表单 1', selector);
-      element = document.querySelector(selector);
+      element = formContainer.querySelector(selector);
     }
     console.log('填写队员表单 2', element);
 
@@ -284,7 +346,7 @@ async function fillMemberForm(studentData, photoData) {
       continue;
     }
 
-    if (element.tagName === 'SELECT') {
+    if (element.classList.contains('el-select')) {
       await handleSelect(element, value);
     } else if (element.type === 'file' && field === '一寸照片') {
       console.log('填写队员表单 3', photoData);
@@ -293,26 +355,45 @@ async function fillMemberForm(studentData, photoData) {
     } else {
       element.value = field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
+      element.dispatchEvent(new Event('input', { bubbles: true }));
     }
   }
 
   // 点击提交按钮
-  const submitButton = document.querySelector('.memFooter button');
+  const submitButton = document.querySelector('.memFooter button.memOk.am-btn.am-btn-primary');
+  console.log('提交按钮', submitButton);
   if (submitButton) {
     submitButton.click();
   }
 }
 
-// 处理下拉框选择
+// 修改处理下拉框选择函数
 async function handleSelect(element, value) {
-  const option = Array.from(element.options).find(opt =>
-    opt.text.trim() === value.trim() || opt.value.trim() === value.trim()
-  );
-
-  if (option) {
-    element.value = option.value;
-    element.dispatchEvent(new Event('change', { bubbles: true }));
-  }
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 点击下拉框以显示选项
+      const input = element.querySelector('.el-input__inner');
+      if (!input) {
+        reject(new Error('Select input not found'));
+        return;
+      }
+      
+      input.click();
+      
+      // 等待下拉选项出现
+      const options = await waitForDropdownOptions('.el-select-dropdown__item');
+      const targetOption = options.find(opt => opt.textContent.trim() === value.trim());
+      
+      if (targetOption) {
+        targetOption.click();
+        resolve();
+      } else {
+        reject(new Error(`Option not found: ${value}`));
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 // 处理照片上传
@@ -339,21 +420,15 @@ async function handlePhotoUpload(element, photoData) {
 // 选择下拉框选项
 async function selectDropdownOption(field, value) {
   return new Promise((resolve, reject) => {
-    const select = document.querySelector(`select[data-field="${field}"]`);
+    const select = document.querySelector(`.el-select[data-field="${field}"]`);
     if (!select) {
       reject(new Error(`Select not found for field: ${field}`));
       return;
     }
 
-    const option = Array.from(select.options).find(opt => opt.text === value);
-    if (!option) {
-      reject(new Error(`Option not found: ${value}`));
-      return;
-    }
-
-    select.value = option.value;
-    select.dispatchEvent(new Event('change', { bubbles: true }));
-    resolve();
+    handleSelect(select, value)
+      .then(resolve)
+      .catch(reject);
   });
 }
 
