@@ -16,7 +16,7 @@ const FIXED_OPTIONS = {
   '赛项名称': 'B4: 信息科技算法',
   '队员组别': '中学组',
   '省份': '重庆',
-  '城市': '重庆',
+  '城市': '重庆_市',
   '监护人邮箱': 'mingzhenghua@163.com',
   '监护人手机': '13896097261'
 };
@@ -191,10 +191,23 @@ async function waitForElement(selector, timeout = 10000) {
 }
 
 // 辅助函数：等待下拉选项加载完成
-async function waitForDropdownOptions(selector, timeout = 10000) {
+async function waitForDropdownOptions(selector, value = '', timeout = 10000) {
   return new Promise((resolve, reject) => {
     const observer = new MutationObserver((mutations) => {
-      const options = document.querySelectorAll(selector);
+      let options;
+      
+      if (value === '重庆_市') {
+        // 对于重庆选项，找到只包含一个选项的下拉列表
+        const allDropdowns = document.querySelectorAll('.el-select-dropdown');
+        options = Array.from(allDropdowns)
+          .filter(dropdown => dropdown.querySelectorAll('.el-select-dropdown__item').length === 1)
+          .map(dropdown => dropdown.querySelector('.el-select-dropdown__item'))
+          .filter(Boolean);
+      } else {
+        // 其他情况使用原来的逻辑
+        options = document.querySelectorAll(selector);
+      }
+      
       console.log('等待下拉选项加载完成 options', options, options.length);
       if (options && options.length > 0) {
         observer.disconnect();
@@ -401,11 +414,13 @@ async function handleSelect(element, value) {
       
       input.click();
       
-      // 等待下拉选项出现
-      const options = await waitForDropdownOptions('.el-select-dropdown__item');
+      // 等待下拉选项出现，传递 value 参数
+      const options = await waitForDropdownOptions('.el-select-dropdown__item', value);
       console.log('options', value, options);
       const targetOption = options.find(opt => {
-        return opt.textContent.trim() === value.trim();
+        // 如果 value 包含 _，则需要使用_ 进行分割，进行匹配
+        const targetValue = value.includes('_') ? value.split('_')[0] : value;
+        return opt.textContent.trim() === targetValue.trim();
       });
       console.log('targetOption', targetOption);
       if (targetOption) {
