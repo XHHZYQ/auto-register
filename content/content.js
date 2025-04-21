@@ -68,21 +68,21 @@ async function handleFormFill(studentData, photoData) {
     await selectRandomTeacher();
 
     // 4. 填写参赛信息
-    await fillCompetitionInfo(studentData);
+    // await fillCompetitionInfo(studentData);
 
-    // 5. 添加队员信息
-    const success = await addTeamMember(studentData, photoData);
+    // // 5. 添加队员信息
+    // await addTeamMember(studentData, photoData);
 
-    // 6. 点击预览确认按钮
-    await handlePreviewConfirm();
+    // // 6. 点击预览确认按钮
+    // await handlePreviewConfirm();
 
-    // 7. 点击提交报名按钮
-    await handleSubmitRegistration();
+    // // 7. 点击提交报名按钮
+    // await handleSubmitRegistration();
 
-    // 8. 处理成功弹窗
-    await handleSuccessDialog();
+    // // 8. 处理成功弹窗
+    // await handleSuccessDialog();
 
-    return true;
+    // return true;
   } catch (error) {
     console.error('Registration process error:', error);
     return false;
@@ -254,20 +254,20 @@ async function fillCompetitionInfo(studentData) {
     .find(el => el.textContent.trim() === '参赛信息：');
 
     if (!titleElement) {
-    console.error('参赛信息标题未找到');
-    throw new Error('Competition info title not found');
+      console.error('参赛信息标题未找到');
+      throw new Error('Competition info title not found');
     }
 
     // 找到表单容器
     const formContainer = titleElement.nextElementSibling;
     console.log('参赛信息表单', formContainer);
     if (!formContainer || !formContainer.classList.contains('nn95c')) {
-    console.error('参赛信息表单未找到');
-    throw new Error('Competition info form not found');
+      console.error('参赛信息表单未找到');
+      throw new Error('Competition info form not found');
     }
 
     // 选择赛项名称
-    const competitionSelect = await waitForElement('.el-select');
+    const competitionSelect = formContainer.querySelector('.el-select');
     if (competitionSelect) {
       await handleSelect(competitionSelect, FIXED_OPTIONS['赛项名称']);
     }
@@ -290,7 +290,7 @@ async function fillCompetitionInfo(studentData) {
     }
 
     // 填写团队名称
-    const teamNameInput = await waitForElement('input[placeholder="请输入您的队名，团队名称限制在5个汉字以内"]');
+    const teamNameInput = formContainer.querySelector('input[placeholder="请输入您的队名，团队名称限制在5个汉字以内"]');
     if (teamNameInput) {
       teamNameInput.value = `${studentData['姓名中文']}团队`;
       teamNameInput.dispatchEvent(new Event('change', { bubbles: true }));
@@ -471,10 +471,42 @@ async function selectDropdownOption(field, value) {
   });
 }
 
+// 等待队员列表渲染完成
+async function waitForTeamListReady() {
+  return new Promise((resolve, reject) => {
+    const checkTeamList = setInterval(() => {
+      // 找到"队员列表"标题元素
+      const titleElement = Array.from(document.querySelectorAll('.titleB'))
+        .find(el => el.textContent.includes('队员列表'));
+      
+      if (titleElement) {
+        // 获取下一个兄弟元素
+        const formItemElement = titleElement.nextElementSibling;
+        
+        if (formItemElement && 
+            formItemElement.classList.contains('form-item') && 
+            formItemElement.querySelector('.am-form')) {
+          clearInterval(checkTeamList);
+          resolve();
+        }
+      }
+    }, 500);
+
+    // 设置超时
+    setTimeout(() => {
+      clearInterval(checkTeamList);
+      reject(new Error('等待队员列表渲染超时'));
+    }, 10000);
+  });
+}
+
 // 处理预览确认按钮点击
 async function handlePreviewConfirm() {
   return new Promise(async (resolve, reject) => {
     try {
+      // 等待队员列表渲染完成
+      await waitForTeamListReady();
+      
       // 查找预览确认按钮
       const previewButton = await waitForElement('button.submitB.am-btn.am-btn-secondary.am-active');
       if (!previewButton || previewButton.textContent.trim() !== '预览确认') {
@@ -500,11 +532,11 @@ async function handleSubmitRegistration() {
     try {
       // 查找提交报名按钮
       const submitButton = await waitForElement('button.memOk.am-btn.am-btn-primary.am-btn.am-btn-secondary');
+      console.log('点击提交报名按钮', submitButton);
       if (!submitButton || submitButton.textContent.trim() !== '提交报名') {
         throw new Error('Submit registration button not found');
       }
       
-      console.log('点击提交报名按钮');
       submitButton.click();
       
       resolve();
