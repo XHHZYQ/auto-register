@@ -73,8 +73,16 @@ async function handleFormFill(studentData, photoData) {
     // 5. 添加队员信息
     const success = await addTeamMember(studentData, photoData);
 
-    // 6. 提交表单
-    return success;
+    // 6. 点击预览确认按钮
+    await handlePreviewConfirm();
+
+    // 7. 点击提交报名按钮
+    await handleSubmitRegistration();
+
+    // 8. 处理成功弹窗
+    await handleSuccessDialog();
+
+    return true;
   } catch (error) {
     console.error('Registration process error:', error);
     return false;
@@ -432,35 +440,71 @@ async function selectDropdownOption(field, value) {
   });
 }
 
-// 提交表单
-async function submitForm() {
-  return new Promise((resolve, reject) => {
-    const submitButton = document.querySelector('button.submitB');
-    if (!submitButton) {
-      reject(new Error('Submit button not found'));
-      return;
-    }
-
-    submitButton.click();
-
-    const observer = new MutationObserver((mutations) => {
-      if (document.querySelector('.success-message')) {
-        observer.disconnect();
-        resolve('success');
-      } else if (document.querySelector('.error-message')) {
-        observer.disconnect();
-        resolve('error');
+// 处理预览确认按钮点击
+async function handlePreviewConfirm() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 查找预览确认按钮
+      const previewButton = await waitForElement('button.submitB.am-btn.am-btn-secondary.am-active');
+      if (!previewButton || previewButton.textContent.trim() !== '预览确认') {
+        throw new Error('Preview button not found');
       }
-    });
+      
+      console.log('点击预览确认按钮', previewButton);
+      previewButton.click();
+      
+      // 等待预览内容加载完成
+      await waitForElement('.infoCon');
+      
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
+// 处理提交报名按钮点击
+async function handleSubmitRegistration() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 查找提交报名按钮
+      const submitButton = await waitForElement('button.memOk.am-btn.am-btn-primary.am-btn.am-btn-secondary');
+      if (!submitButton || submitButton.textContent.trim() !== '提交报名') {
+        throw new Error('Submit registration button not found');
+      }
+      
+      console.log('点击提交报名按钮');
+      submitButton.click();
+      
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
-    setTimeout(() => {
-      observer.disconnect();
-      resolve('timeout');
-    }, 30000);
+// 处理成功弹窗
+async function handleSuccessDialog() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 等待成功弹窗出现
+      const titleElement = await waitForElement('.el-message-box__title span');
+      if (!titleElement || titleElement.textContent.trim() !== '报名成功') {
+        throw new Error('Success dialog title not found');
+      }
+      
+      // 查找确定按钮
+      const confirmButton = document.querySelector('.el-message-box__btns button');
+      if (!confirmButton || confirmButton.textContent.trim() !== '确定') {
+        throw new Error('Success dialog confirm button not found');
+      }
+      
+      console.log('点击成功弹窗确定按钮');
+      confirmButton.click();
+      
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
   });
 } 
