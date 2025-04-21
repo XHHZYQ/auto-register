@@ -129,19 +129,29 @@ async function handleLicenseDialog() {
     const checkDialog = setTimeout(() => {
       const checkbox = document.querySelector('.el-checkbox__input input[type="checkbox"]');
       const confirmButton = document.querySelector('.memOk.am-btn-primary');
+      const dialog = document.querySelector('.el-dialog__wrapper');
       console.log('承诺书弹窗', checkbox, confirmButton);
 
-      if (checkbox && confirmButton) {
+      if (checkbox && confirmButton && dialog) {
         clearTimeout(checkDialog);
 
         // 勾选复选框
         checkbox.click();
 
         // 点击确认按钮
+        confirmButton.click();
+
+        // 手动关闭弹窗
+        dialog.style.display = 'none';
+        // 移除弹窗的遮罩层
+        const mask = document.querySelector('.v-modal');
+        if (mask) {
+          mask.parentNode.removeChild(mask);
+        }
+
         setTimeout(() => {
-          confirmButton.click();
-        resolve();
-        }, 2000);
+          resolve();
+        }, 100);
       }
     }, 500);
 
@@ -185,6 +195,7 @@ async function waitForDropdownOptions(selector, timeout = 10000) {
   return new Promise((resolve, reject) => {
     const observer = new MutationObserver((mutations) => {
       const options = document.querySelectorAll(selector);
+      console.log('等待下拉选项加载完成 options', options, options.length);
       if (options && options.length > 0) {
         observer.disconnect();
         resolve(Array.from(options));
@@ -257,10 +268,11 @@ async function fillCompetitionInfo(studentData) {
 
     // 选择省份和城市
     const locationSelects = formContainer.querySelectorAll('.el-select');
+    console.log('locationSelects', locationSelects);
     if (locationSelects.length >= 4) {
       await handleSelect(locationSelects[2], FIXED_OPTIONS['省份']);
       // 等待城市列表加载
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       await handleSelect(locationSelects[3], FIXED_OPTIONS['城市']);
     }
 
@@ -301,7 +313,7 @@ async function addTeamMember(studentData, photoData) {
           await fillMemberForm(studentData, photoData);
           setTimeout(() => {
             resolve();
-          }, 2000);
+          }, 500);
         } catch (error) {
           reject(error);
         }
@@ -381,6 +393,7 @@ async function handleSelect(element, value) {
     try {
       // 点击下拉框以显示选项
       const input = element.querySelector('.el-input__inner');
+      console.log('input.click()', input);
       if (!input) {
         reject(new Error('Select input not found'));
         return;
@@ -390,8 +403,11 @@ async function handleSelect(element, value) {
       
       // 等待下拉选项出现
       const options = await waitForDropdownOptions('.el-select-dropdown__item');
-      const targetOption = options.find(opt => opt.textContent.trim() === value.trim());
-      
+      console.log('options', value, options);
+      const targetOption = options.find(opt => {
+        return opt.textContent.trim() === value.trim();
+      });
+      console.log('targetOption', targetOption);
       if (targetOption) {
         targetOption.click();
         resolve();
