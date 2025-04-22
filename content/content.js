@@ -83,7 +83,7 @@ async function handleFormFill(studentData, photoData) {
     // // 8. 处理成功弹窗
     // await handleSuccessDialog();
 
-    // return true;
+    return true;
   } catch (error) {
     console.error('Registration process error:', error);
     return false;
@@ -126,11 +126,11 @@ async function initializeRegistration() {
         }
       }, 50);
 
-      // 设置超时
-      // setTimeout(() => {
-      //   clearTimeout(checkDialog);
-      //   reject(new Error('License dialog timeout'));
-      // }, 5000);
+      设置超时
+      setTimeout(() => {
+        clearTimeout(checkDialog);
+        reject(new Error('License dialog timeout'));
+      }, 5000);
 
     } catch (error) {
       reject(error);

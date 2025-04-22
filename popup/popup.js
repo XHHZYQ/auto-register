@@ -8,60 +8,64 @@ let processCount = 0;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
-document.getElementById('excelFile').addEventListener('change', handleFileSelect);
-document.getElementById('photoFiles').addEventListener('change', handlePhotoSelect);
+document.getElementById('folderInput').addEventListener('change', handleFolderSelect);
 document.getElementById('startBtn').addEventListener('click', startProcess);
 document.getElementById('pauseBtn').addEventListener('click', togglePause);
 
-function handleFileSelect(event) {
-  const file = event.target.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      studentData = XLSX.utils.sheet_to_json(firstSheet);
-      console.log('studentData', studentData);
-    
-      
-      if (studentData.length > 0) {
-        // 验证Excel文件是否包含必要的列
-        if (!studentData[0].hasOwnProperty('一寸照片')) {
-          alert('Excel文件缺少"一寸照片"列，请检查文件格式！');
-          studentData = [];
-        }
-        checkStartCondition();
-      }
-    } catch (error) {
-      alert('Excel 文件解析失败，请检查文件格式！');
-      console.error('Excel parsing error:', error);
-    }
-  };
-
-  reader.readAsArrayBuffer(file);
-}
-
-function handlePhotoSelect(event) {
+async function handleFolderSelect(event) {
   const files = event.target.files;
+  let excelFile = null;
   photoFiles = {};
   
-  // 创建照片文件名到文件内容的映射
+  // 遍历所有文件
   for (let file of files) {
-    if (file.type.startsWith('image/')) {
-      const photoFileName = file.name; // 完整的文件名（包含扩展名）
+    const fileName = file.name.toLowerCase();
+    
+    // 查找Excel文件
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      excelFile = file;
+    }
+    // 查找图片文件
+    else if (file.type.startsWith('image/')) {
       const reader = new FileReader();
-      
       reader.onload = function(e) {
-        photoFiles[photoFileName] = e.target.result;
+        photoFiles[file.name] = e.target.result;
         checkStartCondition();
       };
-      
       reader.readAsDataURL(file);
     }
   }
-  console.log('选择照片', photoFiles);
+  console.log('photoFiles', photoFiles);
+  
+  
+  // 处理Excel文件
+  if (excelFile) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        studentData = XLSX.utils.sheet_to_json(firstSheet);
+        console.log('学生数据:', studentData);
+        
+        if (studentData.length > 0) {
+          // 验证Excel文件是否包含必要的列
+          if (!studentData[0].hasOwnProperty('一寸照片')) {
+            alert('Excel文件缺少"一寸照片"列，请检查文件格式！');
+            studentData = [];
+          }
+          checkStartCondition();
+        }
+      } catch (error) {
+        alert('Excel文件解析失败，请检查文件格式！');
+        console.error('Excel解析错误:', error);
+      }
+    };
+    reader.readAsArrayBuffer(excelFile);
+  } else {
+    alert('未找到Excel文件，请确保文件夹中包含.xlsx或.xls文件！');
+  }
 }
 
 function checkStartCondition() {
@@ -78,8 +82,8 @@ function checkStartCondition() {
   //   alert('部分学生的照片文件缺失，请检查照片文件是否完整！');
   // }
   
-  // document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles && allPhotosExist)
-  document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles);
+  // document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles && allPhotosExist);
+  // document.getElementById('startBtn').disabled = !(hasStudentData && hasPhotoFiles);
 }
 
 function startProcess() {
@@ -251,7 +255,7 @@ function displayStoredData(data) {
   }
 
   // 显示 Excel 文件已选择状态
-  const excelInput = document.getElementById('excelFile');
+  const excelInput = document.getElementById('folderInput');
   excelInput.setAttribute('data-files', '已选择报名名单');
 
   // 恢复之前的数据到全局变量
