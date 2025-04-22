@@ -71,16 +71,27 @@ async function handleFormFill(studentData, photoData) {
     await fillCompetitionInfo(studentData);
     console.log('填写参赛信息 3');
 
-    // // 5. 添加队员信息
+    // 5. 添加队员信息
     await addTeamMember(studentData, photoData);
+
+    // 等待用户确认继续
+    await new Promise((resolve) => {
+      const messageHandler = (request) => {
+        if (request.action === 'continueProcess') {
+          chrome.runtime.onMessage.removeListener(messageHandler);
+          resolve();
+        }
+      };
+      chrome.runtime.onMessage.addListener(messageHandler);
+    });
 
     // 6. 点击预览确认按钮
     // await handlePreviewConfirm();
 
-    // // 7. 点击提交报名按钮
+    // 7. 点击提交报名按钮
     // await handleSubmitRegistration();
 
-    // // 8. 处理成功弹窗
+    // 8. 处理成功弹窗
     // await handleSuccessDialog();
 
     return true;
@@ -308,6 +319,11 @@ async function addTeamMember(studentData, photoData) {
 
         try {
           await fillMemberForm(studentData, photoData);
+          // 在成功添加队员后发送消息给 popup
+          chrome.runtime.sendMessage({
+            action: 'memberAdded',
+            currentStudent: studentData
+          });
           setTimeout(() => {
             resolve();
           }, 500);

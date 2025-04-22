@@ -3,6 +3,7 @@ let photoFiles = {};
 let isPaused = false;
 let currentIndex = 0;
 let processCount = 0;
+let waitingForConfirmation = false;
 
 // 添加重试相关的配置
 const MAX_RETRIES = 3;
@@ -11,6 +12,22 @@ const RETRY_DELAY = 1000;
 document.getElementById('folderInput').addEventListener('change', handleFolderSelect);
 document.getElementById('startBtn').addEventListener('click', startProcess);
 document.getElementById('pauseBtn').addEventListener('click', togglePause);
+
+// 监听来自 content.js 的消息
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'memberAdded') {
+    // 设置等待确认状态
+    waitingForConfirmation = true;
+    // 更新按钮状态
+    document.getElementById('pauseBtn').style.display = 'none';
+    document.getElementById('startBtn').style.display = 'block';
+    document.getElementById('startBtn').textContent = '继续处理下一个';
+    // 显示当前处理的学生信息
+    document.getElementById('currentStudent').textContent = `${request.currentStudent['姓名中文']} (已添加，等待确认)`;
+  }
+  sendResponse({ received: true });
+  return true;
+});
 
 async function handleFolderSelect(event) {
   const files = event.target.files;
@@ -90,6 +107,20 @@ function startProcess() {
   if (currentIndex >= studentData.length) {
     currentIndex = 0;
     processCount = 0;
+  }
+
+  if (waitingForConfirmation) {
+    // 如果是在等待确认状态，发送继续处理的消息
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'continueProcess' });
+      }
+    });
+    waitingForConfirmation = false;
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('pauseBtn').style.display = 'block';
+    document.getElementById('pauseBtn').textContent = '暂停';
+    return;
   }
 
   document.getElementById('startBtn').style.display = 'none';
