@@ -5,6 +5,7 @@ const FIELD_MAPPING = {
   '民族': 'input[placeholder="请输入民族"]',
   '学校全称': 'input[placeholder="请输入学校名称"]',
   '年级': '.am-input-group:has(span:contains("年级")) .el-select',
+  '证件号码': '.am-input-group:has(span:contains("证件号码")) .el-select',
   '身份证号': 'input[placeholder="请输入身份证号"]',
   '监护人邮箱': 'input[placeholder="请输入邮箱"]',
   '监护人手机': 'input[placeholder="请输入手机号"]',
@@ -16,9 +17,7 @@ const FIXED_OPTIONS = {
   '赛项名称': 'B4: 信息科技算法',
   '队员组别': '中学组',
   '省份': '重庆',
-  '城市': '重庆_市',
-  '监护人邮箱': 'mingzhenghua@163.com',
-  '监护人手机': '13896097261'
+  '城市': '重庆_市'
 };
 
 // 初始化状态
@@ -37,7 +36,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // 保存上传的数据
     uploadedData.students = request.data;
     uploadedData.photos = request.photoData;
-    
+
     handleFormFill(request.data, request.photoData)
       .then(result => sendResponse({ success: result }))
       .catch(error => {
@@ -60,29 +59,28 @@ async function handleFormFill(studentData, photoData) {
   try {
     // 如果未初始化，先进行初始化流程
     if (!isInitialized) {
-      await initializeRegistration();
-      isInitialized = true;
+      // await initializeRegistration();
+      // isInitialized = true;
     }
 
     // 3. 随机选择指导教师
-    await selectRandomTeacher();
-
+    // await selectRandomTeacher();
     // 4. 填写参赛信息
-    // await fillCompetitionInfo(studentData);
+    await fillCompetitionInfo(studentData);
 
     // // 5. 添加队员信息
-    // await addTeamMember(studentData, photoData);
+    await addTeamMember(studentData, photoData);
 
-    // // 6. 点击预览确认按钮
-    // await handlePreviewConfirm();
+    // 6. 点击预览确认按钮
+    await handlePreviewConfirm();
 
     // // 7. 点击提交报名按钮
-    // await handleSubmitRegistration();
+    await handleSubmitRegistration();
 
     // // 8. 处理成功弹窗
-    // await handleSuccessDialog();
+    await handleSuccessDialog();
 
-    // return true;
+    return true;
   } catch (error) {
     console.error('Registration process error:', error);
     return false;
@@ -118,7 +116,9 @@ async function clickRegisterTeamButton() {
     }
     console.log('点击注册新团队按钮', registerButton);
     registerButton.click();
-    resolve();
+    setTimeout(() => {
+      resolve();
+    }, 1000);
   });
 }
 
@@ -151,7 +151,7 @@ async function handleLicenseDialog() {
 
         setTimeout(() => {
           resolve();
-        }, 100);
+        }, 1000);
       }
     }, 500);
 
@@ -167,14 +167,18 @@ async function handleLicenseDialog() {
 async function waitForElement(selector, timeout = 10000) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(selector)) {
-      return resolve(document.querySelector(selector));
+      setTimeout(() => {
+        resolve(document.querySelector(selector));
+      }, 100);
     }
 
     const observer = new MutationObserver((mutations) => {
       const element = document.querySelector(selector);
       if (element) {
         observer.disconnect();
-        resolve(element);
+        setTimeout(() => {
+          resolve(element);
+        }, 100);
       }
     });
 
@@ -195,7 +199,7 @@ async function waitForDropdownOptions(selector, value = '', timeout = 10000) {
   return new Promise((resolve, reject) => {
     const observer = new MutationObserver((mutations) => {
       let options;
-      
+
       if (value === '重庆_市') {
         // 对于重庆选项，找到只包含一个选项的下拉列表
         const allDropdowns = document.querySelectorAll('.el-select-dropdown');
@@ -207,7 +211,7 @@ async function waitForDropdownOptions(selector, value = '', timeout = 10000) {
         // 其他情况使用原来的逻辑
         options = document.querySelectorAll(selector);
       }
-      
+
       console.log('等待下拉选项加载完成 options', options, options.length);
       if (options && options.length > 0) {
         observer.disconnect();
@@ -239,8 +243,9 @@ async function selectRandomTeacher() {
     const buttons = document.querySelectorAll('.teacherICon .el-button');
     const randomIndex = Math.floor(Math.random() * buttons.length);
     buttons[randomIndex].click();
-    
-    return Promise.resolve();
+    setTimeout(() => {
+      return Promise.resolve();
+    }, 1000);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -251,7 +256,7 @@ async function fillCompetitionInfo(studentData) {
   try {
     // 先找到"参赛信息"标题元素
     const titleElement = Array.from(document.querySelectorAll('.titleB'))
-    .find(el => el.textContent.trim() === '参赛信息：');
+      .find(el => el.textContent.trim() === '参赛信息：');
 
     if (!titleElement) {
       console.error('参赛信息标题未找到');
@@ -285,7 +290,7 @@ async function fillCompetitionInfo(studentData) {
     if (locationSelects.length >= 4) {
       await handleSelect(locationSelects[2], FIXED_OPTIONS['省份']);
       // 等待城市列表加载
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       await handleSelect(locationSelects[3], FIXED_OPTIONS['城市']);
     }
 
@@ -365,7 +370,7 @@ async function fillMemberForm(studentData, photoData) {
     console.log('填写队员表单 0', field, value);
 
     let element;
-    if (field === '性别' || field === '年级') {
+    if (field === '性别' || field === '年级' || field === '证件号码') {
       element = findSelectByLabel(formContainer, field);
     } else {
       const selector = FIELD_MAPPING[field];
@@ -386,9 +391,12 @@ async function fillMemberForm(studentData, photoData) {
       console.log('填写队员表单 4', studentData['一寸照片']);
       await handlePhotoUpload(element, photoData);
     } else {
+      console.log('填写队员表单 5', element, value);
+      console.log('填写队员表单 6', field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value);
       element.value = field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
       element.dispatchEvent(new Event('input', { bubbles: true }));
+      element.dispatchEvent(new Event('blur', { bubbles: true }));
     }
   }
 
@@ -396,7 +404,10 @@ async function fillMemberForm(studentData, photoData) {
   const submitButton = document.querySelector('.memFooter button.memOk.am-btn.am-btn-primary');
   console.log('提交按钮', submitButton);
   if (submitButton) {
-    submitButton.click();
+    setTimeout(() => {
+      submitButton.click();
+      submitButton.dispatchEvent(new Event('click', { bubbles: true }));
+    }, 2500);
   }
 }
 
@@ -411,9 +422,9 @@ async function handleSelect(element, value) {
         reject(new Error('Select input not found'));
         return;
       }
-      
+
       input.click();
-      
+
       // 等待下拉选项出现，传递 value 参数
       const options = await waitForDropdownOptions('.el-select-dropdown__item', value);
       console.log('options', value, options);
@@ -450,6 +461,7 @@ async function handlePhotoUpload(element, photoData) {
     element.files = dataTransfer.files;
     console.log('处理照片上传 3', element.files);
     element.dispatchEvent(new Event('change', { bubbles: true }));
+    element.dispatchEvent(new Event('blur', { bubbles: true }));
   } catch (error) {
     console.error('Photo upload error:', error);
     throw error;
@@ -478,14 +490,14 @@ async function waitForTeamListReady() {
       // 找到"队员列表"标题元素
       const titleElement = Array.from(document.querySelectorAll('.titleB'))
         .find(el => el.textContent.includes('队员列表'));
-      
+
       if (titleElement) {
         // 获取下一个兄弟元素
         const formItemElement = titleElement.nextElementSibling;
-        
-        if (formItemElement && 
-            formItemElement.classList.contains('form-item') && 
-            formItemElement.querySelector('.am-form')) {
+
+        if (formItemElement &&
+          formItemElement.classList.contains('form-item') &&
+          formItemElement.querySelector('.am-form')) {
           clearInterval(checkTeamList);
           resolve();
         }
@@ -506,19 +518,21 @@ async function handlePreviewConfirm() {
     try {
       // 等待队员列表渲染完成
       await waitForTeamListReady();
-      
+
       // 查找预览确认按钮
       const previewButton = await waitForElement('button.submitB.am-btn.am-btn-secondary.am-active');
       if (!previewButton || previewButton.textContent.trim() !== '预览确认') {
         throw new Error('Preview button not found');
       }
-      
+
       console.log('点击预览确认按钮', previewButton);
-      previewButton.click();
-      
+      setTimeout(() => {
+        previewButton.click();
+      }, 2500);
+
       // 等待预览内容加载完成
       await waitForElement('.infoCon');
-      
+
       resolve();
     } catch (error) {
       reject(error);
@@ -536,9 +550,9 @@ async function handleSubmitRegistration() {
       if (!submitButton || submitButton.textContent.trim() !== '提交报名') {
         throw new Error('Submit registration button not found');
       }
-      
+
       submitButton.click();
-      
+
       resolve();
     } catch (error) {
       reject(error);
@@ -555,17 +569,31 @@ async function handleSuccessDialog() {
       if (!titleElement || titleElement.textContent.trim() !== '报名成功') {
         throw new Error('Success dialog title not found');
       }
-      
+
       // 查找确定按钮
       const confirmButton = document.querySelector('.el-message-box__btns button');
       if (!confirmButton || confirmButton.textContent.trim() !== '确定') {
         throw new Error('Success dialog confirm button not found');
       }
-      
+
       console.log('点击成功弹窗确定按钮');
       confirmButton.click();
-      
-      resolve();
+
+      const dimmer = document.querySelector('.am-dimmer.am-active');
+      if (dimmer) {
+        dimmer.style.display = 'none';
+      }
+      setTimeout(() => {
+      const backButton = document.querySelector('.centerBtns .el-button.backBtn.el-button--default.el-button--small');
+        if (backButton) {
+          backButton.click();
+        }
+      }, 300);
+      // 处理遮罩层
+      setTimeout(() => {
+        resolve();
+      }, 100);
+
     } catch (error) {
       reject(error);
     }

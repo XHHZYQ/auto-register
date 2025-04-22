@@ -116,26 +116,39 @@ function processNext() {
   document.getElementById('currentStudent').textContent = student['姓名中文'];
   
   // 检查是否需要暂停（每处理5个学生）
-  // if (processCount >= 5) {
-  if (processCount >= 1) {
+  if (processCount >= 5) {
+  // if (processCount >= 1) {
     isPaused = true;
     processCount = 0;
     document.getElementById('pauseBtn').textContent = '继续';
-    alert('已处理1名学生，请检查报名信息是否正确后继续。');
+    alert('已处理5名学生，请检查报名信息是否正确后继续。');
     return;
   }
 
   console.log('当前学生', student);
   console.log('photoFiles', photoFiles[student['一寸照片']]);
-  student['监护人邮箱'] = 'mingzhenghua@163.com';
-  student['监护人手机'] = '13896097261';
+  // student['监护人邮箱'] = 'mingzhenghua@163.com';
+  // student['监护人手机'] = '13896097261';
   // 发送消息给 content script
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (!tabs[0]) {
+      alert('请在目标网页上使用此扩展！');
+      updateFailCount();
+      return;
+    }
+
     chrome.tabs.sendMessage(tabs[0].id, {
       action: 'fillForm',
       data: student,
       photoData: photoFiles[student['一寸照片']]
     }, function(response) {
+      if (chrome.runtime.lastError) {
+        console.error('通信错误:', chrome.runtime.lastError);
+        alert('请确保您在正确的网页上使用此扩展，并刷新页面后重试！');
+        updateFailCount();
+        return;
+      }
+
       console.log('popup 收到消息', response);
       if (response && response.success) {
         updateSuccessCount();
