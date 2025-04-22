@@ -4,9 +4,30 @@
   <meta charset="UTF-8">
   <title>自动报名助手</title>
   <link rel="stylesheet" href="popup.css">
+  <style>
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .close-btn:hover {
+      background: #ff0000;
+    }
+    .container {
+      position: relative;
+      padding-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
+    <button id="closeBtn" class="close-btn">关闭</button>
     <h2>自动报名助手</h2>
     <div class="upload-section">
       <div class="file-group">

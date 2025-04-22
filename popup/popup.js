@@ -9,9 +9,82 @@ let waitingForConfirmation = false;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
+// 保存状态到 chrome.storage
+function saveState() {
+  console.log('执行了 saveState');
+  chrome.storage.local.set({
+    studentData: studentData,
+    photoFiles: photoFiles,
+    currentIndex: currentIndex,
+    processCount: processCount,
+    isPaused: isPaused,
+    waitingForConfirmation: waitingForConfirmation
+  });
+  console.log('saveState 执行完毕');
+}
+
+// 从 chrome.storage 加载状态
+function loadState() {
+  console.log('执行了 loadState');
+  chrome.storage.local.get([
+    'studentData',
+    'photoFiles',
+    'currentIndex',
+    'processCount',
+    'isPaused',
+    'waitingForConfirmation'
+  ], (result) => {
+    console.log('loadState result', result);
+    if (result.studentData) {
+      studentData = result.studentData;
+      photoFiles = result.photoFiles || {};
+      currentIndex = result.currentIndex || 0;
+      processCount = result.processCount || 0;
+      isPaused = result.isPaused || false;
+      waitingForConfirmation = result.waitingForConfirmation || false;
+      
+      // 更新UI
+      updateUI();
+    }
+  });
+  console.log('loadState 执行完毕');
+}
+
+// 更新UI状态
+function updateUI() {
+  if (studentData.length > 0) {
+    document.getElementById('folderInput').setAttribute('data-files', '已选择文件夹');
+    document.querySelector('.progress-section').style.display = 'block';
+    updateProgress(currentIndex, studentData.length);
+    
+    if (waitingForConfirmation) {
+      document.getElementById('pauseBtn').style.display = 'none';
+      document.getElementById('startBtn').style.display = 'block';
+      document.getElementById('startBtn').textContent = '继续处理下一个';
+    } else {
+      document.getElementById('startBtn').style.display = isPaused ? 'block' : 'none';
+      document.getElementById('pauseBtn').style.display = isPaused ? 'none' : 'block';
+      document.getElementById('pauseBtn').textContent = isPaused ? '继续' : '暂停';
+    }
+  }
+}
+
 document.getElementById('folderInput').addEventListener('change', handleFolderSelect);
 document.getElementById('startBtn').addEventListener('click', startProcess);
 document.getElementById('pauseBtn').addEventListener('click', togglePause);
+
+// 添加关闭按钮事件监听
+document.getElementById('closeBtn').addEventListener('click', () => {
+  saveState();
+  window.close();
+});
+
+// 在页面加载时加载状态
+document.addEventListener('DOMContentLoaded', loadState);
+
+// 在页面关闭或失去焦点时保存状态
+window.addEventListener('unload', saveState);
+window.addEventListener('blur', saveState);
 
 // 监听来自 content.js 的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -45,41 +118,44 @@ async function handleFolderSelect(event) {
     // 查找图片文件
     else if (file.type.startsWith('image/')) {
       const reader = new FileReader();
-      reader.onload = function(e) {
-        photoFiles[file.name] = e.target.result;
-        checkStartCondition();
-      };
-      reader.readAsDataURL(file);
+      await new Promise((resolve) => {
+        reader.onload = function(e) {
+          photoFiles[file.name] = e.target.result;
+          resolve();
+        };
+        reader.readAsDataURL(file);
+      });
     }
   }
-  console.log('photoFiles', photoFiles);
-  
   
   // 处理Excel文件
   if (excelFile) {
     const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        studentData = XLSX.utils.sheet_to_json(firstSheet);
-        console.log('学生数据:', studentData);
-        
-        if (studentData.length > 0) {
-          // 验证Excel文件是否包含必要的列
-          if (!studentData[0].hasOwnProperty('一寸照片')) {
-            alert('Excel文件缺少"一寸照片"列，请检查文件格式！');
-            studentData = [];
+    await new Promise((resolve) => {
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          studentData = XLSX.utils.sheet_to_json(firstSheet);
+          
+          if (studentData.length > 0) {
+            if (!studentData[0].hasOwnProperty('一寸照片')) {
+              alert('Excel文件缺少"一寸照片"列，请检查文件格式！');
+              studentData = [];
+            }
+            checkStartCondition();
+            saveState(); // 保存状态
           }
-          checkStartCondition();
+          resolve();
+        } catch (error) {
+          alert('Excel文件解析失败，请检查文件格式！');
+          console.error('Excel解析错误:', error);
+          resolve();
         }
-      } catch (error) {
-        alert('Excel文件解析失败，请检查文件格式！');
-        console.error('Excel解析错误:', error);
-      }
-    };
-    reader.readAsArrayBuffer(excelFile);
+      };
+      reader.readAsArrayBuffer(excelFile);
+    });
   } else {
     alert('未找到Excel文件，请确保文件夹中包含.xlsx或.xls文件！');
   }
@@ -243,16 +319,19 @@ function updateProgress(current, total) {
   const percentage = (current / total) * 100;
   document.getElementById('progressBar').style.width = percentage + '%';
   document.getElementById('progressText').textContent = `${current}/${total}`;
+  saveState(); // 保存状态
 }
 
 function updateSuccessCount() {
   const element = document.getElementById('successCount');
   element.textContent = parseInt(element.textContent) + 1;
+  saveState(); // 保存状态
 }
 
 function updateFailCount() {
   const element = document.getElementById('failCount');
   element.textContent = parseInt(element.textContent) + 1;
+  saveState(); // 保存状态
 }
 
 // 当 popup 页面加载时获取存储的数据
