@@ -4,6 +4,10 @@ let isPaused = false;
 let currentIndex = 0;
 let processCount = 0;
 
+// 添加重试相关的配置
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
 document.getElementById('excelFile').addEventListener('change', handleFileSelect);
 document.getElementById('photoFiles').addEventListener('change', handlePhotoSelect);
 document.getElementById('startBtn').addEventListener('click', startProcess);
@@ -101,6 +105,47 @@ function togglePause() {
   }
 }
 
+// 检查content script是否已准备好
+async function checkContentScriptReady(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, { action: 'ping' }, function(response) {
+      resolve(!chrome.runtime.lastError && response && response.pong);
+    });
+  });
+}
+
+// 带重试机制的消息发送函数
+async function sendMessageWithRetry(tabId, message, retries = MAX_RETRIES) {
+  return new Promise(async (resolve, reject) => {
+    const attemptSend = async (attemptsLeft) => {
+      try {
+        // 首先检查content script是否准备好
+        const isReady = await checkContentScriptReady(tabId);
+        if (!isReady) {
+          throw new Error('Content script not ready');
+        }
+
+        // 发送实际消息
+        chrome.tabs.sendMessage(tabId, message, function(response) {
+          if (chrome.runtime.lastError) {
+            throw chrome.runtime.lastError;
+          }
+          resolve(response);
+        });
+      } catch (error) {
+        console.log(`发送消息失败，剩余重试次数: ${attemptsLeft-1}`);
+        if (attemptsLeft > 1) {
+          setTimeout(() => attemptSend(attemptsLeft - 1), RETRY_DELAY);
+        } else {
+          reject(error);
+        }
+      }
+    };
+
+    attemptSend(retries);
+  });
+}
+
 function processNext() {
   if (isPaused || currentIndex >= studentData.length) {
     if (currentIndex >= studentData.length) {
@@ -115,41 +160,31 @@ function processNext() {
   const student = studentData[currentIndex];
   document.getElementById('currentStudent').textContent = student['姓名中文'];
   
-  // 检查是否需要暂停（每处理5个学生）
-  if (processCount >= 5) {
-  // if (processCount >= 1) {
+  if (processCount >= 1) {
     isPaused = true;
     processCount = 0;
     document.getElementById('pauseBtn').textContent = '继续';
-    alert('已处理5名学生，请检查报名信息是否正确后继续。');
+    alert('已处理1名学生，请检查报名信息是否正确后继续。');
     return;
   }
 
   console.log('当前学生', student);
   console.log('photoFiles', photoFiles[student['一寸照片']]);
-  // student['监护人邮箱'] = 'mingzhenghua@163.com';
-  // student['监护人手机'] = '13896097261';
-  // 发送消息给 content script
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+
+  chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
     if (!tabs[0]) {
       alert('请在目标网页上使用此扩展！');
       updateFailCount();
       return;
     }
 
-    chrome.tabs.sendMessage(tabs[0].id, {
-      action: 'fillForm',
-      data: student,
-      photoData: photoFiles[student['一寸照片']]
-    }, function(response) {
-      if (chrome.runtime.lastError) {
-        console.error('通信错误:', chrome.runtime.lastError);
-        alert('请确保您在正确的网页上使用此扩展，并刷新页面后重试！');
-        updateFailCount();
-        return;
-      }
+    try {
+      const response = await sendMessageWithRetry(tabs[0].id, {
+        action: 'fillForm',
+        data: student,
+        photoData: photoFiles[student['一寸照片']]
+      });
 
-      console.log('popup 收到消息', response);
       if (response && response.success) {
         updateSuccessCount();
       } else {
@@ -160,9 +195,12 @@ function processNext() {
       processCount++;
       updateProgress(currentIndex, studentData.length);
       
-      // 延迟处理下一条数据，避免页面响应不及时
       setTimeout(processNext, 2000);
-    });
+    } catch (error) {
+      console.error('处理失败:', error);
+      alert('处理失败，请刷新页面后重试！如果问题持续存在，请确保您在正确的网页上使用此扩展。');
+      updateFailCount();
+    }
   });
 }
 

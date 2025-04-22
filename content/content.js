@@ -30,7 +30,11 @@ let uploadedData = {
 // 监听来自 popup 的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('监听来自 popup 的消息', request);
-  if (request.action === 'fillForm') {
+  if (request.action === 'ping') {
+    // 响应ping请求
+    sendResponse({ pong: true });
+    return true;
+  } else if (request.action === 'fillForm') {
     // 保存上传的数据
     uploadedData.students = request.data;
     uploadedData.photos = request.photoData;
@@ -56,11 +60,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function handleFormFill(studentData, photoData) {
   try {
     // 如果未初始化，先进行初始化流程
-    await initializeRegistration();
+    // await initializeRegistration();
 
     // 3. 随机选择指导教师
     console.log('随机选择指导教师 1');
-    await selectRandomTeacher();
+    // await selectRandomTeacher();
     console.log('随机选择指导教师 2');
     // 4. 填写参赛信息
     console.log('填写参赛信息 1');
@@ -71,15 +75,15 @@ async function handleFormFill(studentData, photoData) {
     await addTeamMember(studentData, photoData);
 
     // 6. 点击预览确认按钮
-    await handlePreviewConfirm();
+    // await handlePreviewConfirm();
 
     // // 7. 点击提交报名按钮
-    await handleSubmitRegistration();
+    // await handleSubmitRegistration();
 
     // // 8. 处理成功弹窗
-    await handleSuccessDialog();
+    // await handleSuccessDialog();
 
-    return true;
+    // return true;
   } catch (error) {
     console.error('Registration process error:', error);
     return false;
@@ -123,10 +127,10 @@ async function initializeRegistration() {
       }, 50);
 
       // 设置超时
-      setTimeout(() => {
-        clearTimeout(checkDialog);
-        reject(new Error('License dialog timeout'));
-      }, 5000);
+      // setTimeout(() => {
+      //   clearTimeout(checkDialog);
+      //   reject(new Error('License dialog timeout'));
+      // }, 5000);
 
     } catch (error) {
       reject(error);
@@ -220,7 +224,7 @@ async function selectRandomTeacher() {
     buttons[randomIndex].dispatchEvent(new Event('click', { bubbles: true }));
     setTimeout(() => {
       return Promise.resolve();
-    }, 4000);
+    }, 500);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -382,7 +386,7 @@ async function fillMemberForm(studentData, photoData) {
     setTimeout(() => {
       submitButton.click();
       submitButton.dispatchEvent(new Event('click', { bubbles: true }));
-    }, 2500);
+    }, 5000);
   }
 }
 
