@@ -20,8 +20,6 @@ const FIXED_OPTIONS = {
   '城市': '重庆_市'
 };
 
-// 初始化状态
-let isInitialized = false;
 
 // 存储上传的数据
 let uploadedData = {
@@ -58,15 +56,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function handleFormFill(studentData, photoData) {
   try {
     // 如果未初始化，先进行初始化流程
-    if (!isInitialized) {
-      // await initializeRegistration();
-      // isInitialized = true;
-    }
+    await initializeRegistration();
 
     // 3. 随机选择指导教师
-    // await selectRandomTeacher();
+    console.log('随机选择指导教师 1');
+    await selectRandomTeacher();
+    console.log('随机选择指导教师 2');
     // 4. 填写参赛信息
+    console.log('填写参赛信息 1');
     await fillCompetitionInfo(studentData);
+    console.log('填写参赛信息 3');
 
     // // 5. 添加队员信息
     await addTeamMember(studentData, photoData);
@@ -91,75 +90,47 @@ async function handleFormFill(studentData, photoData) {
 async function initializeRegistration() {
   return new Promise(async (resolve, reject) => {
     try {
-      // 1. 点击"注册新团队"按钮
-      await clickRegisterTeamButton();
+      // 等待弹窗出现
+      const checkDialog = setTimeout(() => {
+        const checkbox = document.querySelector('.el-checkbox__input input[type="checkbox"]');
+        const confirmButton = document.querySelector('.memOk.am-btn-primary');
+        const dialog = document.querySelector('.el-dialog__wrapper');
+        console.log('承诺书弹窗', checkbox, confirmButton);
 
-      // 2. 处理承诺书弹窗
-      await handleLicenseDialog();
+        if (checkbox && confirmButton && dialog) {
+          clearTimeout(checkDialog);
 
-      resolve();
+          // 勾选复选框
+          checkbox.click();
+
+          // 点击确认按钮
+          confirmButton.click();
+
+          setTimeout(() => {
+            // 手动关闭弹窗
+            dialog.style.display = 'none';
+            // 移除弹窗的遮罩层
+            const mask = document.querySelector('.v-modal');
+            if (mask) {
+              mask.parentNode.removeChild(mask);
+            }
+          }, 500);
+
+          setTimeout(() => {
+            resolve();
+          }, 2000);
+        }
+      }, 50);
+
+      // 设置超时
+      setTimeout(() => {
+        clearTimeout(checkDialog);
+        reject(new Error('License dialog timeout'));
+      }, 5000);
+
     } catch (error) {
       reject(error);
     }
-  });
-}
-
-// 点击注册新团队按钮
-async function clickRegisterTeamButton() {
-  return new Promise((resolve, reject) => {
-    const registerButton = Array.from(document.querySelectorAll('.el-menu-item'))
-      .find(el => el.textContent.trim() === '注册新团队');
-
-    if (!registerButton) {
-      reject(new Error('Register team button not found'));
-      return;
-    }
-    console.log('点击注册新团队按钮', registerButton);
-    registerButton.click();
-    setTimeout(() => {
-      resolve();
-    }, 1000);
-  });
-}
-
-// 处理承诺书弹窗
-async function handleLicenseDialog() {
-  return new Promise((resolve, reject) => {
-    // 等待弹窗出现
-    const checkDialog = setTimeout(() => {
-      const checkbox = document.querySelector('.el-checkbox__input input[type="checkbox"]');
-      const confirmButton = document.querySelector('.memOk.am-btn-primary');
-      const dialog = document.querySelector('.el-dialog__wrapper');
-      console.log('承诺书弹窗', checkbox, confirmButton);
-
-      if (checkbox && confirmButton && dialog) {
-        clearTimeout(checkDialog);
-
-        // 勾选复选框
-        checkbox.click();
-
-        // 点击确认按钮
-        confirmButton.click();
-
-        // 手动关闭弹窗
-        dialog.style.display = 'none';
-        // 移除弹窗的遮罩层
-        const mask = document.querySelector('.v-modal');
-        if (mask) {
-          mask.parentNode.removeChild(mask);
-        }
-
-        setTimeout(() => {
-          resolve();
-        }, 1000);
-      }
-    }, 500);
-
-    // 设置超时
-    setTimeout(() => {
-      clearTimeout(checkDialog);
-      reject(new Error('License dialog timeout'));
-    }, 5000);
   });
 }
 
@@ -236,16 +207,20 @@ async function selectRandomTeacher() {
   try {
     // 等待指导教师按钮出现
     const teacherButtons = await waitForElement('.teacherICon .el-button');
+    console.log('指导教师按钮 1', teacherButtons);
     if (!teacherButtons) {
       throw new Error('No teacher buttons found');
     }
 
     const buttons = document.querySelectorAll('.teacherICon .el-button');
     const randomIndex = Math.floor(Math.random() * buttons.length);
+    console.log('指导教师按钮 2', buttons[randomIndex]);
     buttons[randomIndex].click();
+    // 触发点击事件
+    buttons[randomIndex].dispatchEvent(new Event('click', { bubbles: true }));
     setTimeout(() => {
       return Promise.resolve();
-    }, 1000);
+    }, 4000);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -265,7 +240,7 @@ async function fillCompetitionInfo(studentData) {
 
     // 找到表单容器
     const formContainer = titleElement.nextElementSibling;
-    console.log('参赛信息表单', formContainer);
+    console.log('填写参赛信息 2', formContainer);
     if (!formContainer || !formContainer.classList.contains('nn95c')) {
       console.error('参赛信息表单未找到');
       throw new Error('Competition info form not found');
