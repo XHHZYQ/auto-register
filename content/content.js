@@ -70,6 +70,9 @@ async function handleFormFill(studentData, photoData) {
     // 5. 添加队员信息
     await addTeamMember(studentData, photoData);
 
+    // 6. 点击预览确认按钮
+    await handlePreviewConfirm(studentData);
+
     // 等待用户确认继续
     await new Promise((resolve) => {
       const messageHandler = (request) => {
@@ -80,9 +83,6 @@ async function handleFormFill(studentData, photoData) {
       };
       chrome.runtime.onMessage.addListener(messageHandler);
     });
-
-    // 6. 点击预览确认按钮
-    // await handlePreviewConfirm();
 
     // 7. 点击提交报名按钮
     // await handleSubmitRegistration();
@@ -258,7 +258,7 @@ async function fillCompetitionInfo(studentData) {
     }
 
     // 等待并选择队员组别
-    await new Promise(resolve => setTimeout(resolve, 1000)); // 等待接口返回
+    await new Promise(resolve => setTimeout(resolve, 1500)); // 等待接口返回
     const groupSelect = formContainer.querySelectorAll('.el-select')[1];
     if (groupSelect) {
       await handleSelect(groupSelect, FIXED_OPTIONS['队员组别']);
@@ -307,10 +307,10 @@ async function addTeamMember(studentData, photoData) {
         try {
           await fillMemberForm(studentData, photoData);
           // 在成功添加队员后发送消息给 popup
-          chrome.runtime.sendMessage({
-            action: 'memberAdded',
-            currentStudent: studentData
-          });
+          // chrome.runtime.sendMessage({
+          //   action: 'memberAdded',
+          //   currentStudent: studentData
+          // });
           setTimeout(() => {
             resolve();
           }, 100);
@@ -364,12 +364,9 @@ async function fillMemberForm(studentData, photoData) {
       await handlePhotoUpload(element, photoData);
     } else {
       element.value = field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value;
-      // if (field !== '姓名中文') {
-        // console.log('input change', field, element);
       element.dispatchEvent(new Event('input', { bubbles: true }));
-      // }
       element.dispatchEvent(new Event('change', { bubbles: true }));
-      // element.dispatchEvent(new Event('blur', { bubbles: true }));
+      element.dispatchEvent(new Event('blur', { bubbles: true }));
     }
   }
 
@@ -427,6 +424,9 @@ async function handlePhotoUpload(element, photoData) {
     element.files = dataTransfer.files;
     element.dispatchEvent(new Event('change', { bubbles: true }));
     element.dispatchEvent(new Event('blur', { bubbles: true }));
+
+    // 添加1500毫秒延时等待上传接口返回
+    await new Promise(resolve => setTimeout(resolve, 1500));
   } catch (error) {
     console.error('Photo upload error:', error);
     throw error;
@@ -478,7 +478,7 @@ async function waitForTeamListReady() {
 }
 
 // 处理预览确认按钮点击
-async function handlePreviewConfirm() {
+async function handlePreviewConfirm(studentData) {
   return new Promise(async (resolve, reject) => {
     try {
       // 等待队员列表渲染完成
@@ -492,6 +492,12 @@ async function handlePreviewConfirm() {
 
       setTimeout(() => {
         previewButton.click();
+
+        // 在成功添加队员后发送消息给 popup
+        chrome.runtime.sendMessage({
+          action: 'memberAdded',
+          currentStudent: studentData
+        });
       }, 500);
 
       // 等待预览内容加载完成
@@ -546,7 +552,7 @@ async function handleSuccessDialog() {
         dimmer.style.display = 'none';
       }
       setTimeout(() => {
-      const backButton = document.querySelector('.centerBtns .el-button.backBtn.el-button--default.el-button--small');
+        const backButton = document.querySelector('.centerBtns .el-button.backBtn.el-button--default.el-button--small');
         if (backButton) {
           backButton.click();
         }

@@ -296,7 +296,7 @@ function processNext() {
       processCount++;
       updateProgress(currentIndex, studentData.length);
       
-      setTimeout(processNext, 2000);
+      // setTimeout(processNext, 2000); // 改为手动触发下一个报名
     } catch (error) {
       console.error('处理失败:', error);
       alert('处理失败，请刷新页面后重试！如果问题持续存在，请确保您在正确的网页上使用此扩展。');
