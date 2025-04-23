@@ -63,6 +63,7 @@ async function handleFormFill(studentData, photoData) {
 
     // 3. 随机选择指导教师
     // await selectRandomTeacher();
+
     // 4. 填写参赛信息
     await fillCompetitionInfo(studentData);
 
@@ -126,11 +127,11 @@ async function initializeRegistration() {
 
           setTimeout(() => {
             resolve();
-          }, 2000);
+          }, 500);
         }
       }, 50);
 
-      设置超时
+      // 设置超时
       setTimeout(() => {
         clearTimeout(checkDialog);
         reject(new Error('License dialog timeout'));
@@ -268,7 +269,7 @@ async function fillCompetitionInfo(studentData) {
     if (locationSelects.length >= 4) {
       await handleSelect(locationSelects[2], FIXED_OPTIONS['省份']);
       // 等待城市列表加载
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await handleSelect(locationSelects[3], FIXED_OPTIONS['城市']);
     }
 
@@ -312,7 +313,7 @@ async function addTeamMember(studentData, photoData) {
           });
           setTimeout(() => {
             resolve();
-          }, 500);
+          }, 100);
         } catch (error) {
           reject(error);
         }
@@ -363,9 +364,12 @@ async function fillMemberForm(studentData, photoData) {
       await handlePhotoUpload(element, photoData);
     } else {
       element.value = field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value;
-      element.dispatchEvent(new Event('change', { bubbles: true }));
+      // if (field !== '姓名中文') {
+        // console.log('input change', field, element);
       element.dispatchEvent(new Event('input', { bubbles: true }));
-      element.dispatchEvent(new Event('blur', { bubbles: true }));
+      // }
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      // element.dispatchEvent(new Event('blur', { bubbles: true }));
     }
   }
 
@@ -488,7 +492,7 @@ async function handlePreviewConfirm() {
 
       setTimeout(() => {
         previewButton.click();
-      }, 2500);
+      }, 500);
 
       // 等待预览内容加载完成
       await waitForElement('.infoCon');
