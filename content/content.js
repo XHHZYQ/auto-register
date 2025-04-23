@@ -29,7 +29,6 @@ let uploadedData = {
 
 // 监听来自 popup 的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('监听来自 popup 的消息', request);
   if (request.action === 'ping') {
     // 响应ping请求
     sendResponse({ pong: true });
@@ -63,13 +62,9 @@ async function handleFormFill(studentData, photoData) {
     // await initializeRegistration();
 
     // 3. 随机选择指导教师
-    console.log('随机选择指导教师 1');
     // await selectRandomTeacher();
-    console.log('随机选择指导教师 2');
     // 4. 填写参赛信息
-    console.log('填写参赛信息 1');
     await fillCompetitionInfo(studentData);
-    console.log('填写参赛信息 3');
 
     // 5. 添加队员信息
     await addTeamMember(studentData, photoData);
@@ -110,8 +105,6 @@ async function initializeRegistration() {
         const checkbox = document.querySelector('.el-checkbox__input input[type="checkbox"]');
         const confirmButton = document.querySelector('.memOk.am-btn-primary');
         const dialog = document.querySelector('.el-dialog__wrapper');
-        console.log('承诺书弹窗', checkbox, confirmButton);
-
         if (checkbox && confirmButton && dialog) {
           clearTimeout(checkDialog);
 
@@ -198,7 +191,6 @@ async function waitForDropdownOptions(selector, value = '', timeout = 10000) {
         options = document.querySelectorAll(selector);
       }
 
-      console.log('等待下拉选项加载完成 options', options, options.length);
       if (options && options.length > 0) {
         observer.disconnect();
         resolve(Array.from(options));
@@ -222,14 +214,12 @@ async function selectRandomTeacher() {
   try {
     // 等待指导教师按钮出现
     const teacherButtons = await waitForElement('.teacherICon .el-button');
-    console.log('指导教师按钮 1', teacherButtons);
     if (!teacherButtons) {
       throw new Error('No teacher buttons found');
     }
 
     const buttons = document.querySelectorAll('.teacherICon .el-button');
     const randomIndex = Math.floor(Math.random() * buttons.length);
-    console.log('指导教师按钮 2', buttons[randomIndex]);
     buttons[randomIndex].click();
     // 触发点击事件
     buttons[randomIndex].dispatchEvent(new Event('click', { bubbles: true }));
@@ -255,7 +245,6 @@ async function fillCompetitionInfo(studentData) {
 
     // 找到表单容器
     const formContainer = titleElement.nextElementSibling;
-    console.log('填写参赛信息 2', formContainer);
     if (!formContainer || !formContainer.classList.contains('nn95c')) {
       console.error('参赛信息表单未找到');
       throw new Error('Competition info form not found');
@@ -276,7 +265,6 @@ async function fillCompetitionInfo(studentData) {
 
     // 选择省份和城市
     const locationSelects = formContainer.querySelectorAll('.el-select');
-    console.log('locationSelects', locationSelects);
     if (locationSelects.length >= 4) {
       await handleSelect(locationSelects[2], FIXED_OPTIONS['省份']);
       // 等待城市列表加载
@@ -302,7 +290,6 @@ async function addTeamMember(studentData, photoData) {
   return new Promise((resolve, reject) => {
     // 点击添加队员按钮
     const addButton = document.querySelector('button.submitC');
-    console.log('添加队员按钮', addButton);
     if (!addButton) {
       reject(new Error('Add member button not found'));
       return;
@@ -313,7 +300,6 @@ async function addTeamMember(studentData, photoData) {
     // 等待弹窗出现并填写信息
     const checkDialog = setTimeout(async () => {
       const form = document.querySelector('.memBody.am-modal-bd form');
-      console.log('添加队员弹窗', form);
       if (form) {
         clearTimeout(checkDialog);
 
@@ -338,14 +324,9 @@ async function addTeamMember(studentData, photoData) {
 // 辅助函数：通过label文本查找对应的select元素
 function findSelectByLabel(container, labelText) {
   const groups = container.querySelectorAll('.am-input-group');
-  console.log('groups', groups);
   for (const group of groups) {
     const label = group.querySelector('.am-input-group-label');
-    console.log('label', label);
-    console.log('label.textContent', label.textContent);
-    console.log('includes(labelText)', label.textContent.includes(labelText));
     if (label && label.textContent.includes(labelText)) {
-      console.log('group.querySelector(".el-select")', group.querySelector('.el-select'));
       return group.querySelector('.el-select');
     }
   }
@@ -362,17 +343,14 @@ async function fillMemberForm(studentData, photoData) {
 
   for (const [field, value] of Object.entries(studentData)) {
     if (!FIELD_MAPPING[field]) continue;
-    console.log('填写队员表单 0', field, value);
 
     let element;
     if (field === '性别' || field === '年级' || field === '证件号码') {
       element = findSelectByLabel(formContainer, field);
     } else {
       const selector = FIELD_MAPPING[field];
-      console.log('填写队员表单 1', selector);
       element = formContainer.querySelector(selector);
     }
-    console.log('填写队员表单 2', element);
 
     if (!element) {
       console.warn(`Element not found for field: ${field}`);
@@ -382,12 +360,8 @@ async function fillMemberForm(studentData, photoData) {
     if (element.classList.contains('el-select')) {
       await handleSelect(element, value);
     } else if (element.type === 'file' && field === '一寸照片') {
-      console.log('填写队员表单 3', photoData);
-      console.log('填写队员表单 4', studentData['一寸照片']);
       await handlePhotoUpload(element, photoData);
     } else {
-      console.log('填写队员表单 5', element, value);
-      console.log('填写队员表单 6', field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value);
       element.value = field in FIXED_OPTIONS ? FIXED_OPTIONS[field] : value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
       element.dispatchEvent(new Event('input', { bubbles: true }));
@@ -397,12 +371,11 @@ async function fillMemberForm(studentData, photoData) {
 
   // 点击提交按钮
   const submitButton = document.querySelector('.memFooter button.memOk.am-btn.am-btn-primary');
-  console.log('提交按钮', submitButton);
   if (submitButton) {
     setTimeout(() => {
       submitButton.click();
       submitButton.dispatchEvent(new Event('click', { bubbles: true }));
-    }, 5000);
+    }, 500);
   }
 }
 
@@ -412,7 +385,6 @@ async function handleSelect(element, value) {
     try {
       // 点击下拉框以显示选项
       const input = element.querySelector('.el-input__inner');
-      console.log('input.click()', input);
       if (!input) {
         reject(new Error('Select input not found'));
         return;
@@ -422,13 +394,11 @@ async function handleSelect(element, value) {
 
       // 等待下拉选项出现，传递 value 参数
       const options = await waitForDropdownOptions('.el-select-dropdown__item', value);
-      console.log('options', value, options);
       const targetOption = options.find(opt => {
         // 如果 value 包含 _，则需要使用_ 进行分割，进行匹配
         const targetValue = value.includes('_') ? value.split('_')[0] : value;
         return opt.textContent.trim() === targetValue.trim();
       });
-      console.log('targetOption', targetOption);
       if (targetOption) {
         targetOption.click();
         resolve();
@@ -444,17 +414,13 @@ async function handleSelect(element, value) {
 // 处理照片上传
 async function handlePhotoUpload(element, photoData) {
   try {
-    console.log('处理照片上传 0', photoData);
     const response = await fetch(photoData);
-    console.log('处理照片上传 1', response);
     const blob = await response.blob();
     const file = new File([blob], 'filename.jpg', { type: 'image/jpg' });
 
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
-    console.log('处理照片上传 2', element.files, dataTransfer.files);
     element.files = dataTransfer.files;
-    console.log('处理照片上传 3', element.files);
     element.dispatchEvent(new Event('change', { bubbles: true }));
     element.dispatchEvent(new Event('blur', { bubbles: true }));
   } catch (error) {
@@ -520,7 +486,6 @@ async function handlePreviewConfirm() {
         throw new Error('Preview button not found');
       }
 
-      console.log('点击预览确认按钮', previewButton);
       setTimeout(() => {
         previewButton.click();
       }, 2500);
@@ -541,7 +506,6 @@ async function handleSubmitRegistration() {
     try {
       // 查找提交报名按钮
       const submitButton = await waitForElement('button.memOk.am-btn.am-btn-primary.am-btn.am-btn-secondary');
-      console.log('点击提交报名按钮', submitButton);
       if (!submitButton || submitButton.textContent.trim() !== '提交报名') {
         throw new Error('Submit registration button not found');
       }
@@ -571,7 +535,6 @@ async function handleSuccessDialog() {
         throw new Error('Success dialog confirm button not found');
       }
 
-      console.log('点击成功弹窗确定按钮');
       confirmButton.click();
 
       const dimmer = document.querySelector('.am-dimmer.am-active');

@@ -11,7 +11,6 @@ const RETRY_DELAY = 1000;
 
 // 保存状态到 chrome.storage
 function saveState() {
-  console.log('执行了 saveState');
   chrome.storage.local.set({
     studentData: studentData,
     photoFiles: photoFiles,
@@ -20,12 +19,10 @@ function saveState() {
     isPaused: isPaused,
     waitingForConfirmation: waitingForConfirmation
   });
-  console.log('saveState 执行完毕');
 }
 
 // 从 chrome.storage 加载状态
 function loadState() {
-  console.log('执行了 loadState');
   chrome.storage.local.get([
     'studentData',
     'photoFiles',
@@ -34,7 +31,6 @@ function loadState() {
     'isPaused',
     'waitingForConfirmation'
   ], (result) => {
-    console.log('loadState result', result);
     if (result.studentData) {
       studentData = result.studentData;
       photoFiles = result.photoFiles || {};
@@ -47,7 +43,6 @@ function loadState() {
       updateUI();
     }
   });
-  console.log('loadState 执行完毕');
 }
 
 // 更新UI状态
@@ -167,7 +162,6 @@ function checkStartCondition() {
   
   // 验证每个学生的照片是否都存在
   // const allPhotosExist = studentData.every(student => {
-  //   console.log('photoFiles', photoFiles);
   //   return student['一寸照片'] && photoFiles.hasOwnProperty(student['一寸照片']);
   // });
   
@@ -244,7 +238,6 @@ async function sendMessageWithRetry(tabId, message, retries = MAX_RETRIES) {
           resolve(response);
         });
       } catch (error) {
-        console.log(`发送消息失败，剩余重试次数: ${attemptsLeft-1}`);
         if (attemptsLeft > 1) {
           setTimeout(() => attemptSend(attemptsLeft - 1), RETRY_DELAY);
         } else {
@@ -271,16 +264,13 @@ function processNext() {
   const student = studentData[currentIndex];
   document.getElementById('currentStudent').textContent = student['姓名中文'];
   
-  if (processCount >= 1) {
-    isPaused = true;
-    processCount = 0;
-    document.getElementById('pauseBtn').textContent = '继续';
-    alert('已处理1名学生，请检查报名信息是否正确后继续。');
-    return;
-  }
-
-  console.log('当前学生', student);
-  console.log('photoFiles', photoFiles[student['一寸照片']]);
+  // if (processCount >= 1) {
+  //   isPaused = true;
+  //   processCount = 0;
+  //   document.getElementById('pauseBtn').textContent = '继续';
+  //   alert('已处理1名学生，请检查报名信息是否正确后继续。');
+  //   return;
+  // }
 
   chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
     if (!tabs[0]) {
